@@ -6,6 +6,9 @@ var player;
 var mob;
 var floor;
 var battlescreen;
+var commenceBattle;
+var haveFought;
+var grass,jingle,ding;
 
 var GamePlay = function(game) {};
 GamePlay.prototype = {
@@ -38,6 +41,10 @@ GamePlay.prototype = {
 		game.physics.arcade.enable(mob);
 		mob.body.gravity.y = 1000;
 
+		//whether or not player has fought this mob yet
+		//later move to prefab when multiple mobs exist
+		haveFought = false;
+
 
 		//enable camera to follow player around
 		game.camera.follow(player);
@@ -51,35 +58,14 @@ GamePlay.prototype = {
 		game.physics.arcade.enable(floor);
 		floor.body.immovable = true;
 
+		//https://phaser.io/examples/v2/misc/pause-menu
+		//input listener
+		game.input.onDown.add(this.battleChoice,self);
 
-
-		//test battle screen
-		var bat_label = game.add.text(game.width-100,20,'battle', {font:'24px Impact', fill: '#FFFFFF'});
-		bat_label.inputEnabled = true;
-		bat_label.events.onInputUp.add(function(){
-			game.paused = true;
-			console.log('game supposedly paused');
-			battlescreen = game.add.sprite(0,0,'battle');
-});
-			//input listener
-			game.input.onDown.add(platform,self);
-
-			function platform(event){
-				if(game.paused){
-					if(event.y > game.height/2){
-						console.log('action clicked, clicking works');
-					}
-					else{
-						battlescreen.destroy();
-						game.paused = false;
-						console.log('game supposedly unpaused');
-					}
-				}
-			};
-		
-
-
-
+		//audio
+		grass = game.add.audio('grass');
+		jingle = game.add.audio('jingle');
+		ding = game.add.audio('ding');
 
 
 
@@ -89,6 +75,9 @@ GamePlay.prototype = {
 		//make player/floor collide
 		var inContact = game.physics.arcade.collide(player,floor);
 		game.physics.arcade.collide(mob,floor);
+
+		//call this.startBattle if player and mob overlap, go to battle screen
+		game.physics.arcade.overlap(player,mob,this.startBattle, null, this);
 
 		//movement for player character
 		//check if right key down
@@ -106,6 +95,7 @@ GamePlay.prototype = {
 			player.body.velocity.x = 0;
 		}
 
+
 		//if player on ground and up key down
 		if(inContact && game.input.keyboard.isDown(Phaser.Keyboard.UP)){
 			//move up(jump)
@@ -118,8 +108,38 @@ GamePlay.prototype = {
 			game.state.start('GameOver');
 		}
 	},
+	startBattle: function(player,enemy){
+		//check if player has already fought this enemy
+		if(!haveFought){
+			//mark enemy as fought
+			haveFought = true;
+			//pause the game/cease player input for platforming game section
+			game.paused = true;
+			console.log('game supposedly paused');
+			//create battlescreen
+			battlescreen = game.add.sprite(game.width/2,game.height/2,'battle');
+			battlescreen.anchor.setTo(0.5,0.5);
+		}
+	},
+	battleChoice: function(event){
+		//this function is called when mouse is clicked
+		//check if game paused aka in battle
+		if(game.paused){
+			//if bottom half of screen clicked, acknowledge in console
+			if(event.y > game.height/2){
+				console.log('action clicked, clicking works');
+			}
+			//if clicked elsewhere (top half)
+			else{
+				//end battle sequence
+				battlescreen.destroy();
+				//resume game
+				game.paused = false;
+				console.log('game supposedly unpaused');
+			}
+		}
+	},
 	render: function(){
-		//game.debug.body(floor);
 		
 	}
 }

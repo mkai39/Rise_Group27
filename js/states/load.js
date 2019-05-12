@@ -15,7 +15,15 @@ Load.prototype = {
 		game.load.spritesheet('button','assets/img/button.png');
 		game.load.image('mc','assets/img/TempChar.png');
 		game.load.image('mob','assets/img/TempBad.png');
-		game.load.image('battle','assets/img/battledraft.png')
+		game.load.image('battle','assets/img/battledraft.png');
+		game.load.image('select', 'assets/img/selection.png');
+		//temp audio
+		//https://freesound.org/people/SilentStrikeZ/sounds/389625/
+		game.load.audio('grass', 'assets/audio/389625__silentstrikez__footsteps-grass-1.wav');
+		//https://freesound.org/people/alienistcog/sounds/123659/
+		game.load.audio('jingle', 'assets/audio/123659__alienistcog__md4trk9.aiff');
+		//https://freesound.org/people/InspectorJ/sounds/415510/
+		game.load.audio('ding', 'assets/audio/415510__inspectorj__bell-counter-a.wav');
 
 	},
 	create: function(){
