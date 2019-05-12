@@ -5,7 +5,7 @@ var xMOVE_SPEED = 200;
 var player;
 var mob;
 var floor;
-
+var battlescreen;
 
 var GamePlay = function(game) {};
 GamePlay.prototype = {
@@ -13,6 +13,7 @@ GamePlay.prototype = {
 		console.log('GamePlay preload');
 	},
 	create: function(){
+
 		console.log('GamePlay create');
 		//set background color
 		game.stage.backgroundColor = "#1C8A2E";
@@ -32,11 +33,10 @@ GamePlay.prototype = {
 		player.body.gravity.y = 1000;															//give player gravity
 		player.body.collideWorldBounds = true;													//make player collide with world bounds
 
+		//create enemy character and enable arcade physics
 		mob = game.add.sprite(300,game.height-100,'mob');
 		game.physics.arcade.enable(mob);
 		mob.body.gravity.y = 1000;
-
-
 
 
 		//enable camera to follow player around
@@ -52,10 +52,43 @@ GamePlay.prototype = {
 		floor.body.immovable = true;
 
 
+
+		//test battle screen
+		var bat_label = game.add.text(game.width-100,20,'battle', {font:'24px Impact', fill: '#FFFFFF'});
+		bat_label.inputEnabled = true;
+		bat_label.events.onInputUp.add(function(){
+			game.paused = true;
+			console.log('game supposedly paused');
+			battlescreen = game.add.sprite(0,0,'battle');
+});
+			//input listener
+			game.input.onDown.add(platform,self);
+
+			function platform(event){
+				if(game.paused){
+					if(event.y > game.height/2){
+						console.log('action clicked, clicking works');
+					}
+					else{
+						battlescreen.destroy();
+						game.paused = false;
+						console.log('game supposedly unpaused');
+					}
+				}
+			};
+		
+
+
+
+
+
+
+
 	},
 	update: function(){
 		//make player/floor collide
 		var inContact = game.physics.arcade.collide(player,floor);
+		game.physics.arcade.collide(mob,floor);
 
 		//movement for player character
 		//check if right key down

@@ -15,6 +15,7 @@ Load.prototype = {
 		game.load.spritesheet('button','assets/img/button.png');
 		game.load.image('mc','assets/img/TempChar.png');
 		game.load.image('mob','assets/img/TempBad.png');
+		game.load.image('battle','assets/img/battledraft.png')
 
 	},
 	create: function(){
