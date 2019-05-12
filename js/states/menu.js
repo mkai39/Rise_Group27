@@ -1,3 +1,9 @@
+//Group 27
+//Kaizena Ma
+//Holly Cheng
+//Linda Xieu
+
+//Menu State
 
 "use strict";
 
@@ -33,7 +39,7 @@ MainMenu.prototype = {
 
 
 
-
+//code from button example
 // this.pauseButton = this.game.add.sprite(0, 0, 'pauseButton');
 // this.pauseButton.inputEnabled = true;
 // this.pauseButton.events.onInputUp.add(function () {this.game.paused = true;},this);

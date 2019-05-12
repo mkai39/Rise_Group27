@@ -1,3 +1,10 @@
+//Group 27
+//Kaizena Ma
+//Holly Cheng
+//Linda Xieu
+
+//Gameplay State
+
 
 "use strict";
 
@@ -8,7 +15,9 @@ var floor;
 var battlescreen;
 var commenceBattle;
 var haveFought;
-var grass,jingle,ding;
+var grass,ding;
+var moving;
+var tempInstructions;
 
 var GamePlay = function(game) {};
 GamePlay.prototype = {
@@ -64,9 +73,9 @@ GamePlay.prototype = {
 
 		//audio
 		grass = game.add.audio('grass');
-		jingle = game.add.audio('jingle');
 		ding = game.add.audio('ding');
 
+		moving = false;
 
 
 
@@ -81,18 +90,32 @@ GamePlay.prototype = {
 
 		//movement for player character
 		//check if right key down
+
 		if(game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
 			//move right
 			player.body.velocity.x = xMOVE_SPEED;
+			//check so audio just plays once, not keep restarting while key down
+			if (!moving){
+				grass.play();
+				moving = true;
+			}
 		}
 		//check if left key down
 		else if(game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
 			//move left
 			player.body.velocity.x = -xMOVE_SPEED;
+			//check so audio just plays once, not keep restarting while key down
+			if (!moving){
+				grass.play();
+				moving = true;
+			}
 		}
 		else{
 			//otherwise, don't move left/right
 			player.body.velocity.x = 0;
+			//reset audio conditions
+			moving = false;
+			grass.stop();
 		}
 
 
@@ -119,6 +142,7 @@ GamePlay.prototype = {
 			//create battlescreen
 			battlescreen = game.add.sprite(game.width/2,game.height/2,'battle');
 			battlescreen.anchor.setTo(0.5,0.5);
+			tempInstructions = game.add.text(100,150, 'click\nbottom half: console acknowledgement\ntop half: close battle window\n1 battle per enemy', {font: '20px Impact', fill: '#000000'});
 		}
 	},
 	battleChoice: function(event){
@@ -128,11 +152,14 @@ GamePlay.prototype = {
 			//if bottom half of screen clicked, acknowledge in console
 			if(event.y > game.height/2){
 				console.log('action clicked, clicking works');
+				//DING NOISE WONT WORK IN THIS SPECIFIC BLOCK OF CODE FOR SOME DAMN REASON
+				//ding.play();
 			}
 			//if clicked elsewhere (top half)
 			else{
 				//end battle sequence
 				battlescreen.destroy();
+				tempInstructions.destroy();
 				//resume game
 				game.paused = false;
 				console.log('game supposedly unpaused');

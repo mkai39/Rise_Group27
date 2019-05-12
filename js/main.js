@@ -1,8 +1,14 @@
+//Group 27
+//Kaizena Ma
+//Holly Cheng
+//Linda Xieu
+
+//Main
+
 "use strict";
 
 
 //move global variables here, later
-
 
 //create game object
 var game = new Phaser.Game(640,960, Phaser.AUTO);
@@ -18,8 +24,10 @@ game.state.start('Load');
 
 
 //Tasks:
-//combat - pause game so second 'screen' can appear, when battle over, return to pre-battle settings/inputs
+//battle sequence, figure out keyboard input while game paused
 
 //check out p2 physics
 
-//invisible button?
+//invisible button? on menu screen
+
+//button selection audio

@@ -1,3 +1,12 @@
+//Group 27
+//Kaizena Ma
+//Holly Cheng
+//Linda Xieu
+
+//Gameover State
+
+
+"use strict";
 
 var GameOver = function(game) {};
 GameOver.prototype = {

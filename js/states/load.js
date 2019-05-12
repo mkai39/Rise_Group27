@@ -1,3 +1,10 @@
+//Group 27
+//Kaizena Ma
+//Holly Cheng
+//Linda Xieu
+
+//Load State
+
 
 "use strict";
 
@@ -20,8 +27,6 @@ Load.prototype = {
 		//temp audio
 		//https://freesound.org/people/SilentStrikeZ/sounds/389625/
 		game.load.audio('grass', 'assets/audio/389625__silentstrikez__footsteps-grass-1.wav');
-		//https://freesound.org/people/alienistcog/sounds/123659/
-		game.load.audio('jingle', 'assets/audio/123659__alienistcog__md4trk9.aiff');
 		//https://freesound.org/people/InspectorJ/sounds/415510/
 		game.load.audio('ding', 'assets/audio/415510__inspectorj__bell-counter-a.wav');
 
