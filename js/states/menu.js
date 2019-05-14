@@ -3,6 +3,9 @@
 //Holly Cheng
 //Linda Xieu
 
+//GitHub Repository
+//https://github.com/mkaizena/FinalGame
+
 //Menu State
 
 "use strict";
