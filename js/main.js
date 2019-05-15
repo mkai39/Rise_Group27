@@ -14,7 +14,7 @@
 //move global variables here, later
 
 //create game object
-var game = new Phaser.Game(640,960, Phaser.AUTO);
+var game = new Phaser.Game(600,900, Phaser.AUTO);
 
 //add states
 game.state.add('Load', Load);
