@@ -29,7 +29,7 @@ GameOver.prototype = {
 		//check if spacebar is down
 		if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
 			//go to next state
-			game.state.start('Load');
+			game.state.start('Load',true, true);
 		}
 	}
 }
