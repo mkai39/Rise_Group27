@@ -24,6 +24,7 @@ var grass,ding;
 var moving;
 var tempInstructions;
 var selector;
+var inBattle;
 
 var GamePlay = function(game) {};
 GamePlay.prototype = {
@@ -39,7 +40,7 @@ GamePlay.prototype = {
 		game.physics.startSystem(Phaser.Physics.ARCADE);
 
 		//set the bounds of the world
-		game.world.setBounds(0,0,640,1600);
+		game.world.setBounds(0,0,game.width,1600);
 
 		//create sky background
 		var bg = game.add.sprite(0,0,'bg');
@@ -50,19 +51,15 @@ GamePlay.prototype = {
 
 
 		//create player character and enable arcade physics
-		player = game.add.sprite(100,game.world.height-300,'mc');
+		player = game.add.sprite(100,game.world.height-200,'mc');
+		player.anchor.set(0,1);
 		game.physics.arcade.enable(player);
 		player.body.gravity.y = 1000;															//give player gravity
 		player.body.collideWorldBounds = true;													//make player collide with world bounds
 
-		//create enemy character and enable arcade physics
-		mob = game.add.sprite(300,game.world.height-300,'mob');
-		game.physics.arcade.enable(mob);
-		mob.body.gravity.y = 1000;
-
-		//whether or not player has fought this mob yet
-		//later move to prefab when multiple mobs exist
-		haveFought = false;
+		//create enemy character
+		mob = new Enemy(game, 300, game.world.height-200, 'mob');
+		game.add.existing(mob);
 
 
 		//enable camera to follow player around
@@ -94,7 +91,6 @@ GamePlay.prototype = {
 	update: function(){
 		//make player/floor collide
 		var inContact = game.physics.arcade.collide(player,floor);
-		game.physics.arcade.collide(mob,floor);
 
 		//call this.startBattle if player and mob overlap, go to battle screen
 		game.physics.arcade.overlap(player,mob,this.startBattle, null, this);
@@ -144,9 +140,9 @@ GamePlay.prototype = {
 	},
 	startBattle: function(player,enemy){
 		//check if player has already fought this enemy
-		if(!haveFought){
+		if(!mob.haveFought){
 			//mark enemy as fought
-			haveFought = true;
+			mob.haveFought = true;
 			//pause the game/cease player input for platforming game section
 			game.paused = true;
 			console.log('game supposedly paused');
@@ -178,11 +174,11 @@ GamePlay.prototype = {
 				selector.destroy();
 				console.log('game supposedly unpaused');
 				game.paused = false;
-				mob.alpha = 0.5;
 			}
 		}
 	},
 	render: function(){
-		
+		game.debug.body(mob);
+		game.debug.body(player);
 	}
 }
