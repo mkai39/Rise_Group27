@@ -166,6 +166,8 @@ GamePlay.prototype = {
 			}
 		}, this);
 
+
+	//original sky size
 	//var tempSky = game.add.sprite(0,game.world.height, 'bg');
 	//tempSky.anchor.setTo(0,1);
 
