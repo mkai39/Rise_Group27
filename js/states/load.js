@@ -39,6 +39,7 @@ Load.prototype = {
 		game.load.audio('grass', 'assets/audio/389625__silentstrikez__footsteps-grass-1.wav');
 		//https://freesound.org/people/InspectorJ/sounds/415510/
 		game.load.audio('ding', 'assets/audio/415510__inspectorj__bell-counter-a.wav');
+		game.load.audio('selected', 'assets/audio/select.mp3');
 
 	},
 	create: function(){
