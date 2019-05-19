@@ -15,16 +15,18 @@
 //everything is a global variable so I don't need to deal w this. at the moment
 var xMOVE_SPEED = 200;
 var player;
-var mob;
+var platform;
+var mob, mob2;
 var floor;
 var battlescreen;
-var commenceBattle;
 var haveFought;
-var grass,ding;
+var grass,ding, selected;
 var moving;
 var tempInstructions;
 var selector;
 var inBattle;
+var inContact;
+//var selectRight, selectLeft, select;
 
 var GamePlay = function(game) {};
 GamePlay.prototype = {
@@ -33,46 +35,49 @@ GamePlay.prototype = {
 	},
 	create: function(){
 		console.log('GamePlay create');
-		//set background color
-		game.stage.backgroundColor = "#1C8A2E";
+			//set the bounds of the world
+		game.world.setBounds(0,0,game.width,1600);
+
+		//create sky background
+		var bg = game.add.sprite(0,game.world.height,'bg');
+		bg.anchor.setTo(0,1);
+		bg.scale.setTo(2.45,2.4);
 
 		//enable arcade physics in the world
 		game.physics.startSystem(Phaser.Physics.ARCADE);
 
-		//set the bounds of the world
-		game.world.setBounds(0,0,game.width,1600);
-
-		//create sky background
-		var bg = game.add.sprite(0,0,'bg');
-		bg.scale.setTo(3,2.1);
-
-		//identify stage
-		game.add.text(50,50,'This is GAMEPLAY\nSPACE to go to GAMEOVER state', {font:'18px Impact', fill: '#FFFFFF'});
-
-
 		//create player character and enable arcade physics
-		player = game.add.sprite(100,game.world.height-200,'mc');
+		player = game.add.sprite(100,game.world.height-100,'mc');
 		player.anchor.set(0,1);
 		game.physics.arcade.enable(player);
-		player.body.gravity.y = 1000;															//give player gravity
+		player.body.gravity.y = 200;	//1000														//give player gravity
 		player.body.collideWorldBounds = true;													//make player collide with world bounds
 
 		//create enemy character
-		mob = new Enemy(game, 300, game.world.height-200, 'mob');
+		mob = new Enemy(game, 100, game.world.height-500, 'mob');
 		game.add.existing(mob);
-
+		mob2 = new Enemy(game, 300,game.world.height-100,'mob');
+		game.add.existing(mob2);
 
 		//enable camera to follow player around
 		game.camera.follow(player);
 
 		//create floor object
-		floor = game.add.sprite(0,game.world.height-200,'mc');
-		floor.scale.setTo(10,40);
+		floor = game.add.sprite(0,game.world.height-64,'mc');
+		floor.scale.setTo(10,10);
 		//set floor to black/easier on the eyes
 		floor.tint = 0x000000;
 		//enable arcade physics for the floor
 		game.physics.arcade.enable(floor);
 		floor.body.immovable = true;
+		
+
+		platform = game.add.sprite(0 , floor.y - 400, 'mc');
+		platform.scale.setTo(5, 1);
+		game.physics.arcade.enable(platform);
+		platform.body.immovable = true;
+	
+
 
 		//https://phaser.io/examples/v2/misc/pause-menu
 		//input listener
@@ -80,101 +85,120 @@ GamePlay.prototype = {
 
 		//audio
 		grass = game.add.audio('grass');
-		ding = game.add.audio('ding');
+		//ding = game.add.audio('ding');
+		selected = game.add.audio('selected');
 
 		//boolean to tell whether player is currently moving so audio knows whent to be playing
-		moving = false;
+		//moving = false;
 
+		//creating keys and their functions;
+		//designate what is done when right key pressed/held down
+		game.input.keyboard.addKey(Phaser.Keyboard.RIGHT).onHoldCallback = function(){
+			//When in Platformer state
+			if(!inBattle){
+				//player moves right
+				player.body.velocity.x = xMOVE_SPEED;
+				//check so audio just plays once, not keep restarting while key down
+				// if (!moving){
+				// 	grass.play();
+				// 	moving = true;
+				// }
+			}
+			//When in Battle state
+			else if(inBattle){
+				//check if selector is over 'fight' button
+				if(selector.x == battlescreen.x - 150){
+					//move selector over from 'fight' to 'run'
+					selector.x += 150;
+				}
+			}
+		};
+
+		//designate what is done when left key pressed/held down
+		game.input.keyboard.addKey(Phaser.Keyboard.LEFT).onHoldCallback = function(){
+			//When in Platformer state
+			if(!inBattle){
+				//player move left
+				player.body.velocity.x = -xMOVE_SPEED;
+				//check so audio just plays once, not keep restarting while key down
+				// if (!moving){
+				// 	grass.play();
+				// 	moving = true;
+				// }			
+			}
+			//When in Battle state
+			else if(inBattle){
+				//check if selecto is over 'run' button
+				if(selector.x == battlescreen.x){
+					//move selector over from 'run' to 'fight'
+					selector.x -= 150;
+				}
+			}
+		};
+
+		//designate what is done when up key is pressed
+		var jump = game.input.keyboard.addKey(Phaser.Keyboard.UP);
+		jump.onDown.add(function(){
+			//When in Platformer state and touching the ground
+			if(!inBattle && inContact){
+				//move up(jump)
+				player.body.velocity.y = -450;
+			}
+		}, this);
+
+		//designate what's done when space pressed
+		var selAction = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+		selAction.onDown.add(function(){
+			//when in Battle
+			if(inBattle){
+				//selected 'fight'
+				if(selector.x == battlescreen.x - 150){
+					//play sound
+					selected.play();
+				}
+				//selected 'run'
+				else if(selector.x == battlescreen.x){
+					//destroy the battle screen and selector objects, tell system game is no longer in battle state
+					battlescreen.destroy();
+	 				selector.destroy();
+	 				inBattle = false;
+				}
+			}
+		}, this);
+
+	//var tempSky = game.add.sprite(0,game.world.height, 'bg');
+	//tempSky.anchor.setTo(0,1);
 
 
 	},
 	update: function(){
 		//make player/floor collide
-		var inContact = game.physics.arcade.collide(player,floor);
+		inContact = game.physics.arcade.collide(player,[floor,platform]);
 
 		//call this.startBattle if player and mob overlap, go to battle screen
-		game.physics.arcade.overlap(player,mob,this.startBattle, null, this);
-
-		//movement for player character
-		//check if right key down
-
-		if(game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
-			//move right
-			player.body.velocity.x = xMOVE_SPEED;
-			//check so audio just plays once, not keep restarting while key down
-			if (!moving){
-				grass.play();
-				moving = true;
-			}
-		}
-		//check if left key down
-		else if(game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
-			//move left
-			player.body.velocity.x = -xMOVE_SPEED;
-			//check so audio just plays once, not keep restarting while key down
-			if (!moving){
-				grass.play();
-				moving = true;
-			}
-		}
-		else{
-			//otherwise, don't move left/right
-			player.body.velocity.x = 0;
-			//reset audio conditions
-			moving = false;
-			grass.stop();
-		}
+		game.physics.arcade.overlap(player,[mob,mob2],this.startBattle, null, this);
 
 
-		//if player on ground and up key down
-		if(inContact && game.input.keyboard.isDown(Phaser.Keyboard.UP)){
-			//move up(jump)
-			player.body.velocity.y = -450;
-		}
+		//set player's default parameters
+		player.body.velocity.x = 0;				//not moving
+		//moving = false;							
+		//grass.stop();
 
-		//check if spacebar down
-		if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
-			//go to next state
-			game.state.start('GameOver');
-		}
+
 	},
 	startBattle: function(player,enemy){
 		//check if player has already fought this enemy
 		if(!mob.haveFought){
+			inBattle = true;
 			//mark enemy as fought
 			mob.haveFought = true;
-			//pause the game/cease player input for platforming game section
-			game.paused = true;
-			console.log('game supposedly paused');
 			//create battlescreen
-			battlescreen = game.add.sprite(game.width/2,4.5*game.height/4,'battle');
+			battlescreen = game.add.sprite(game.width/2,game.world.height - game.canvas.height/2,'battle');
 			battlescreen.anchor.setTo(0.5,0.5);
 			//temporary instructions for battle screen
-			//tempInstructions = game.add.text(battlescreen.x - battlescreen.width/2,battlescreen.y - battlescreen.height/2, 'click\nbottom half: console acknowledgement\ntop half: close battle window\n1 battle per enemy', {font: '20px Impact', fill: '#000000'});
 			//shows what action is currently selected
-			selector = game.add.sprite(battlescreen.x - 150,battlescreen.y + 100,'select');
-		}
-	},
-	pauseUpdate(){
-		if(selector.x == battlescreen.x - 150){
-			if(game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
-				selector.x += 150;
-			}
-			if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
-				console.log('current problem is that game is still paused so sound doesnt play until game is unpaused');
-				ding.play();
-			}
-		}
-		else if(selector.x == battlescreen.x){
-			if(game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
-				selector.x -= 150;
-			}
-			if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
-				battlescreen.destroy();
-				selector.destroy();
-				console.log('game supposedly unpaused');
-				game.paused = false;
-			}
+			selector = game.add.sprite(battlescreen.x - 150, battlescreen.y + 100,'select');
+			console.log(battlescreen.y);
 		}
 	},
 	render: function(){
