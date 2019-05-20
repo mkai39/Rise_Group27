@@ -27,12 +27,15 @@ Load.prototype = {
 		game.load.setPreloadSprite(loadBar);
 
 		//preload assets
-		game.load.spritesheet('button','assets/img/button.png');
 		game.load.image('mc','assets/img/TempChar.png');
 		game.load.image('mob','assets/img/TempBad.png');
 		game.load.image('battle','assets/img/battledraft.png');
 		game.load.image('select', 'assets/img/selection.png');
 		game.load.image('sky','assets/img/sky.png');
+		//texture atlas of happy player character walking animations
+		game.load.atlas('protag','assets/img/protag.png','assets/img/protag.json');
+		game.load.atlas('protagNeutral', 'assets/img/protag_neutral.png','assets/img/protag_neutral.json');
+		game.load.atlas('protagSad','assets/img/protag_sad.png','assets/img/protag_sad.json');
 
 		//temp audio
 		//https://freesound.org/people/SilentStrikeZ/sounds/389625/
@@ -41,9 +44,6 @@ Load.prototype = {
 		game.load.audio('ding', 'assets/audio/415510__inspectorj__bell-counter-a.wav');
 		game.load.audio('selected', 'assets/audio/select.mp3');
 
-	},
-	create: function(){
-		console.log('Load create');
 	},
 	update: function(){
 			//go to next state: menu

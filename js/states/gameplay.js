@@ -47,11 +47,17 @@ GamePlay.prototype = {
 		game.physics.startSystem(Phaser.Physics.ARCADE);
 
 		//create player character and enable arcade physics
-		player = game.add.sprite(100,game.world.height-100,'mc');
+		player = game.add.sprite(100,game.world.height-100,'protag',5);
 		player.anchor.set(0,1);
 		game.physics.arcade.enable(player);
 		player.body.gravity.y = 200;	//1000														//give player gravity
 		player.body.collideWorldBounds = true;													//make player collide with world bounds
+
+		//add player animations
+		player.animations.add('walkRight', [6,7,8,9], 5,true);
+		player.animations.add('walkLeft',[0,1,2,3], 5,true);
+
+
 
 		//create enemy character
 		mob = new Enemy(game, 100, game.world.height-500, 'mob');
@@ -84,12 +90,8 @@ GamePlay.prototype = {
 //		game.input.onDown.add(this.battleChoice,self);
 
 		//audio
-		grass = game.add.audio('grass');
-		//ding = game.add.audio('ding');
 		selected = game.add.audio('selected');
 
-		//boolean to tell whether player is currently moving so audio knows whent to be playing
-		//moving = false;
 
 		//creating keys and their functions;
 		//designate what is done when right key pressed/held down
@@ -98,11 +100,7 @@ GamePlay.prototype = {
 			if(!inBattle){
 				//player moves right
 				player.body.velocity.x = xMOVE_SPEED;
-				//check so audio just plays once, not keep restarting while key down
-				// if (!moving){
-				// 	grass.play();
-				// 	moving = true;
-				// }
+				player.animations.play('walkRight');
 			}
 			//When in Battle state
 			else if(inBattle){
@@ -120,11 +118,7 @@ GamePlay.prototype = {
 			if(!inBattle){
 				//player move left
 				player.body.velocity.x = -xMOVE_SPEED;
-				//check so audio just plays once, not keep restarting while key down
-				// if (!moving){
-				// 	grass.play();
-				// 	moving = true;
-				// }			
+				player.animations.play('walkLeft');			
 			}
 			//When in Battle state
 			else if(inBattle){
@@ -166,10 +160,21 @@ GamePlay.prototype = {
 			}
 		}, this);
 
-
-	//original sky size
-	//var tempSky = game.add.sprite(0,game.world.height, 'bg');
-	//tempSky.anchor.setTo(0,1);
+		//when key is released, do these actions
+		game.input.keyboard.onUpCallback = function (e){
+			//when right is released
+			if(e.keyCode == Phaser.Keyboard.RIGHT){
+				//put player in right-facing idle
+				player.animations.stop();
+				player.frameName = "protag 5.aseprite";
+			}
+			//when left is released
+			else if(e.keyCode == Phaser.Keyboard.LEFT){
+				//put player in lef-facing idle
+				player.animations.stop();
+				player.frameName = "protag 4.aseprite";
+			}
+		};
 
 	},
 	update: function(){
@@ -178,8 +183,8 @@ GamePlay.prototype = {
 
 		//set player's default parameters
 		player.body.velocity.x = 0;				//not moving
-		//moving = false;							
-		//grass.stop();
+
+
 
 
 	},
