@@ -42,7 +42,7 @@ Enemy.prototype.update = function(){
 			inBattle = true;
 			this.haveFought = true;										//mark enemy as fought
 			//create battlescreen
-			battlescreen = game.add.sprite(game.width/2,game.stage.height/2,'battle');
+			battlescreen = game.add.sprite(game.width/2,game.camera.y + game.height/2,'battle');
 			battlescreen.anchor.setTo(0.5,0.5);
 			//create selector (shows player what action is selected)
 			selector = game.add.sprite(battlescreen.x - 150, battlescreen.y + 100,'select');

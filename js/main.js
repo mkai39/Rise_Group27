@@ -28,10 +28,5 @@ game.state.start('Boot');
 
 
 //Tasks:
-//battle sequence, figure out keyboard input while game paused
-
-//check out p2 physics
 
 //invisible button? on menu screen
-
-//button selection audio
