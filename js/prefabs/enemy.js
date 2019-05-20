@@ -33,7 +33,22 @@ Enemy.prototype.constructor = Enemy;
 
 Enemy.prototype.update = function(){
 	//enable collision between enemy mob and the floor
-	game.physics.arcade.collide(this, floor);
+	game.physics.arcade.collide(this, [floor,platform]);
+	//when player overlaps with an enemy, start a battle
+	game.physics.arcade.overlap(player,this,function(){
+		//check if enemy has been fought before
+		if(!this.haveFought){
+			//if not, game will now be in battle
+			inBattle = true;
+			this.haveFought = true;										//mark enemy as fought
+			//create battlescreen
+			battlescreen = game.add.sprite(game.width/2,game.stage.height/2,'battle');
+			battlescreen.anchor.setTo(0.5,0.5);
+			//create selector (shows player what action is selected)
+			selector = game.add.sprite(battlescreen.x - 150, battlescreen.y + 100,'select');
+			console.log(battlescreen.y);
+		}
+	}, null, this);
 
 	//once player has fought this mob, lower the opacity
 	if(this.haveFought){
@@ -41,4 +56,3 @@ Enemy.prototype.update = function(){
 	}
 
 }
-

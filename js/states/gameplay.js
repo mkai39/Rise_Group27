@@ -39,9 +39,9 @@ GamePlay.prototype = {
 		game.world.setBounds(0,0,game.width,1600);
 
 		//create sky background
-		var bg = game.add.sprite(0,game.world.height,'bg');
+		var bg = game.add.sprite(0,game.world.height,'sky');
 		bg.anchor.setTo(0,1);
-		bg.scale.setTo(2.45,2.4);
+		//bg.scale.setTo(2.45,2.4);
 
 		//enable arcade physics in the world
 		game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -171,15 +171,10 @@ GamePlay.prototype = {
 	//var tempSky = game.add.sprite(0,game.world.height, 'bg');
 	//tempSky.anchor.setTo(0,1);
 
-
 	},
 	update: function(){
 		//make player/floor collide
 		inContact = game.physics.arcade.collide(player,[floor,platform]);
-
-		//call this.startBattle if player and mob overlap, go to battle screen
-		game.physics.arcade.overlap(player,[mob,mob2],this.startBattle, null, this);
-
 
 		//set player's default parameters
 		player.body.velocity.x = 0;				//not moving
@@ -188,23 +183,8 @@ GamePlay.prototype = {
 
 
 	},
-	startBattle: function(player,enemy){
-		//check if player has already fought this enemy
-		if(!mob.haveFought){
-			inBattle = true;
-			//mark enemy as fought
-			mob.haveFought = true;
-			//create battlescreen
-			battlescreen = game.add.sprite(game.width/2,game.world.height - game.canvas.height/2,'battle');
-			battlescreen.anchor.setTo(0.5,0.5);
-			//temporary instructions for battle screen
-			//shows what action is currently selected
-			selector = game.add.sprite(battlescreen.x - 150, battlescreen.y + 100,'select');
-			console.log(battlescreen.y);
-		}
-	},
 	render: function(){
-		game.debug.body(mob);
-		game.debug.body(player);
+		//game.debug.body(mob);
+		//game.debug.body(player);
 	}
 }
