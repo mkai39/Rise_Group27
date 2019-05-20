@@ -32,7 +32,7 @@ Load.prototype = {
 		game.load.image('mob','assets/img/TempBad.png');
 		game.load.image('battle','assets/img/battledraft.png');
 		game.load.image('select', 'assets/img/selection.png');
-		game.load.image('bg','assets/img/stage1.png');
+		game.load.image('sky','assets/img/sky.png');
 
 		//temp audio
 		//https://freesound.org/people/SilentStrikeZ/sounds/389625/
