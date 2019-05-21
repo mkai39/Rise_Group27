@@ -27,6 +27,7 @@ Load.prototype = {
 		game.load.setPreloadSprite(loadBar);
 
 		//preload assets
+		//art
 		game.load.image('mc','assets/img/TempChar.png');
 		game.load.image('mob','assets/img/TempBad.png');
 		game.load.image('battle','assets/img/battledraft.png');
@@ -37,12 +38,14 @@ Load.prototype = {
 		game.load.atlas('protagNeutral', 'assets/img/protag_neutral.png','assets/img/protag_neutral.json');
 		game.load.atlas('protagSad','assets/img/protag_sad.png','assets/img/protag_sad.json');
 
-		//temp audio
-		//https://freesound.org/people/SilentStrikeZ/sounds/389625/
-		game.load.audio('grass', 'assets/audio/389625__silentstrikez__footsteps-grass-1.wav');
-		//https://freesound.org/people/InspectorJ/sounds/415510/
-		game.load.audio('ding', 'assets/audio/415510__inspectorj__bell-counter-a.wav');
+		//audio
 		game.load.audio('selected', 'assets/audio/select.mp3');
+		game.load.audio('changeSelection','assets/audio/select2.mp3');
+		game.load.audio('grass1', 'assets/audio/grassStep.mp3');
+		game.load.audio('grass2', 'assets/audio/grassStep2.mp3');
+
+		//narration script
+		game.load.text('narration','js/narration.json');
 
 	},
 	update: function(){
