@@ -3,10 +3,10 @@
 //Holly Cheng
 //Linda Xieu
 
+//Gameplay State
+
 //GitHub Repository
 //https://github.com/mkaizena/FinalGame
-
-//Gameplay State
 
 
 "use strict";
@@ -16,17 +16,17 @@
 var xMOVE_SPEED = 200;
 var player;
 var platform;
-var mob, mob2;
 var floor;
-var battlescreen;
+var battlescreen = 1;
 var haveFought;
-var grass,ding, selected;
 var moving;
 var tempInstructions;
 var selector;
 var inBattle;
 var inContact;
-//var selectRight, selectLeft, select;
+var battleEnded;
+var mob, mob2;
+var stepCount = 0, step;
 
 var GamePlay = function(game) {};
 GamePlay.prototype = {
@@ -82,15 +82,12 @@ GamePlay.prototype = {
 		platform.scale.setTo(5, 1);
 		game.physics.arcade.enable(platform);
 		platform.body.immovable = true;
-	
-
-
-		//https://phaser.io/examples/v2/misc/pause-menu
-		//input listener
-//		game.input.onDown.add(this.battleChoice,self);
 
 		//audio
-		selected = game.add.audio('selected');
+		var selected = game.add.audio('selected');
+		var changeSel = game.add.audio('changeSelection');
+		var grass1 = game.add.audio('grass1');
+		var grass2 = game.add.audio('grass2');
 
 
 		//creating keys and their functions;
@@ -100,7 +97,16 @@ GamePlay.prototype = {
 			if(!inBattle){
 				//player moves right
 				player.body.velocity.x = xMOVE_SPEED;
+				//animate player walking right
 				player.animations.play('walkRight');
+				if(inContact){
+					if(step == 0){
+						grass1.play();
+					}
+					else if(step == 15){
+						grass2.play();
+					}
+				}
 			}
 			//When in Battle state
 			else if(inBattle){
@@ -108,6 +114,7 @@ GamePlay.prototype = {
 				if(selector.x == battlescreen.x - 150){
 					//move selector over from 'fight' to 'run'
 					selector.x += 150;
+					changeSel.play();							//feedback noise
 				}
 			}
 		};
@@ -118,6 +125,7 @@ GamePlay.prototype = {
 			if(!inBattle){
 				//player move left
 				player.body.velocity.x = -xMOVE_SPEED;
+				//animate player walking right
 				player.animations.play('walkLeft');			
 			}
 			//When in Battle state
@@ -126,6 +134,7 @@ GamePlay.prototype = {
 				if(selector.x == battlescreen.x){
 					//move selector over from 'run' to 'fight'
 					selector.x -= 150;
+					changeSel.play();						//feedback noise
 				}
 			}
 		};
@@ -182,14 +191,13 @@ GamePlay.prototype = {
 		inContact = game.physics.arcade.collide(player,[floor,platform]);
 
 		//set player's default parameters
-		player.body.velocity.x = 0;				//not moving
-
-
-
+		player.body.velocity.x = 0;						//not moving
+		stepCount++;
+		step = stepCount % 30;
 
 	},
 	render: function(){
-		//game.debug.body(mob);
+		//game.debug.body(mob2);
 		//game.debug.body(player);
 	}
 }
