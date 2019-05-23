@@ -29,6 +29,7 @@ var mob, mob2;
 var stepCount = 0, step;
 var mapLayer, mapLayer2, mapLayer3;
 var plants, plants2, plants3;
+var mood = 'normal';
 
 var GamePlay = function(game) {};
 GamePlay.prototype = {
@@ -51,9 +52,10 @@ GamePlay.prototype = {
 		//tilemap
 		var map = game.add.tilemap('gamestage');
 		map.addTilesetImage('final_final_final_bg','tilesheet');
-		map.setCollisionBetween(0,170,true, '01platforms');
-		map.setCollisionBetween(0,174,true,'02platforms');
-		map.setCollisionBetween(0,174, true,'03platforms');
+		map.setCollisionBetween(0,119,true, '01platforms');
+		map.setCollisionBetween(136,153,true, '01platforms');
+		map.setCollisionBetween(0,69,true,'02platforms');
+		map.setCollisionBetween(67,174, true,'03platforms');
 		mapLayer = map.createLayer('01platforms');
 		mapLayer2 = map.createLayer('02platforms');
 		mapLayer3 = map.createLayer('03platforms');
@@ -62,18 +64,20 @@ GamePlay.prototype = {
 		plants3 = map.createLayer('03plants');
 
 
-
 		//create player character and enable arcade physics
 		player = game.add.sprite(100,game.world.height-100,'protag',5);
 		player.anchor.set(0,1);
 		game.physics.arcade.enable(player);
-		player.body.gravity.y = 500;	//1000														//give player gravity
+		player.body.gravity.y = 600;	//1000														//give player gravity
 		player.body.collideWorldBounds = true;													//make player collide with world bounds
 
 		//add player animations
 		player.animations.add('walkRight', [6,7,8,9], 5,true);
 		player.animations.add('walkLeft',[0,1,2,3], 5,true);
-
+		player.animations.add('neutWalkRight', [16,17,18,19], 5, true);
+		player.animations.add('neutWalkLeft', [10,11,12,13], 5, true);
+		player.animations.add('sadWalkRight', [26,27,28,29], 5, true);
+		player.animations.add('sadWalkLeft', [20,21,22,23], 5, true);
 
 
 		//create enemy character
@@ -101,15 +105,26 @@ GamePlay.prototype = {
 				//player moves right
 				player.body.velocity.x = xMOVE_SPEED;
 				//animate player walking right
-				player.animations.play('walkRight');
-				if(inContact){
-					if(step == 0){
-						grass1.play();
-					}
-					else if(step == 15){
-						grass2.play();
-					}
+				//change which set of animation is being used depending on player char's mood
+				if(mood == 'neutral'){
+					player.animations.play('neutWalkRight');
 				}
+				else if(mood == 'sad'){
+					player.animations.play('sadWalkRight');
+				}
+				else{
+					player.animations.play('walkRight');
+				}
+
+				//walking audio
+				// if(inContact){
+				// 	if(step == 0){
+				// 		grass1.play();
+				// 	}
+				// 	else if(step == 15){
+				// 		grass2.play();
+				// 	}
+				// }
 			}
 			//When in Battle state
 			else if(inBattle){
@@ -129,7 +144,16 @@ GamePlay.prototype = {
 				//player move left
 				player.body.velocity.x = -xMOVE_SPEED;
 				//animate player walking right
-				player.animations.play('walkLeft');			
+				//change which set of animation is being used depending on player char's mood
+				if(mood == 'neutral'){
+					player.animations.play('neutWalkLeft');
+				}
+				else if(mood == 'sad'){
+					player.animations.play('sadWalkLeft');
+				}
+				else{
+					player.animations.play('walkLeft');
+				}			
 			}
 			//When in Battle state
 			else if(inBattle){
@@ -148,7 +172,7 @@ GamePlay.prototype = {
 			//When in Platformer state and touching the ground
 			if(!inBattle && inContact){
 				//move up(jump)
-				player.body.velocity.y = -450;
+				player.body.velocity.y = -500;
 			}
 		}, this);
 
@@ -178,13 +202,31 @@ GamePlay.prototype = {
 			if(e.keyCode == Phaser.Keyboard.RIGHT){
 				//put player in right-facing idle
 				player.animations.stop();
-				player.frameName = "protag 5.aseprite";
+				//change set of right-facing idle frame depending on player char's mood
+				if(mood == 'neutral'){
+					player.frameName = "protag_all 15.aseprite";
+				}
+				else if(mood == 'sad'){
+					player.frameName = "protag_all 25.aseprite";
+				}
+				else{
+					player.frameName = "protag_all 5.aseprite";
+				}
 			}
 			//when left is released
 			else if(e.keyCode == Phaser.Keyboard.LEFT){
 				//put player in lef-facing idle
 				player.animations.stop();
-				player.frameName = "protag 4.aseprite";
+				//change set of left-facing idle frame depending on player char's mood
+				if(mood == 'neutral'){
+					player.frameName = "protag_all 14.aseprite";
+				}
+				else if(mood == 'sad'){
+					player.frameName = "protag_all 24.aseprite";
+				}
+				else{
+					player.frameName = "protag_all 4.aseprite";
+				}
 			}
 		};
 
@@ -204,6 +246,18 @@ GamePlay.prototype = {
 		if(player.x > game.width && player.y > game.height){
 			game.world.setBounds(game.width,0,game.width*2,2560);
 		}
+
+		if(player.y < game.world.height-600 && player.y > game.height*1.5 && player.x < game.width){
+			mood = 'neutral';
+		}
+		else if(player.y < game.height*1.5 && player.x < game.width){
+			mood = 'sad';
+		}
+		else{
+			mood = 'normal';
+		}
+
+
 
 
 	},

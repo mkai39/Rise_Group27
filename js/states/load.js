@@ -28,15 +28,14 @@ Load.prototype = {
 
 		//preload assets
 		//art
-		game.load.image('mc','assets/img/TempChar.png');
 		game.load.image('mob','assets/img/TempBad.png');
 		game.load.image('battle','assets/img/battledraft.png');
 		game.load.image('select', 'assets/img/selection.png');
 		game.load.image('sky','assets/img/sky.png');
 		//texture atlas of happy player character walking animations
-		game.load.atlas('protag','assets/img/protag.png','assets/img/protag.json');
-		game.load.atlas('protagNeutral', 'assets/img/protag_neutral.png','assets/img/protag_neutral.json');
-		game.load.atlas('protagSad','assets/img/protag_sad.png','assets/img/protag_sad.json');
+		game.load.atlas('protag','assets/img/protag_all.png','assets/img/protag_all.json');
+		//game.load.atlas('protagNeutral', 'assets/img/protag_neutral.png','assets/img/protag_neutral.json');
+		//game.load.atlas('protagSad','assets/img/protag_sad.png','assets/img/protag_sad.json');
 
 		//background tilemap data, spritesheet
 		game.load.tilemap('gamestage', 'assets/img/gamemap.json', null, Phaser.Tilemap.TILED_JSON);
