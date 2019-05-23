@@ -14,12 +14,13 @@
 //move global variables here, later
 
 //create game object
-var game = new Phaser.Game(520,780, Phaser.AUTO);
+var game = new Phaser.Game(544,780, Phaser.AUTO);
 
 //add states
 game.state.add('Boot', Boot);
 game.state.add('Load', Load);
 game.state.add('MainMenu', MainMenu);
+game.state.add('Open', Open);
 game.state.add('GamePlay', GamePlay);
 game.state.add('GameOver', GameOver);
 

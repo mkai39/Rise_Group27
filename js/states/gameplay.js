@@ -27,6 +27,8 @@ var inContact;
 var battleEnded;
 var mob, mob2;
 var stepCount = 0, step;
+var mapLayer, mapLayer2, mapLayer3;
+var plants, plants2, plants3;
 
 var GamePlay = function(game) {};
 GamePlay.prototype = {
@@ -36,21 +38,36 @@ GamePlay.prototype = {
 	create: function(){
 		console.log('GamePlay create');
 			//set the bounds of the world
-		game.world.setBounds(0,0,game.width,1600);
+		game.world.setBounds(0,0,game.width,2560);
 
 		//create sky background
 		var bg = game.add.sprite(0,game.world.height,'sky');
 		bg.anchor.setTo(0,1);
-		//bg.scale.setTo(2.45,2.4);
+
 
 		//enable arcade physics in the world
 		game.physics.startSystem(Phaser.Physics.ARCADE);
+
+		//tilemap
+		var map = game.add.tilemap('gamestage');
+		map.addTilesetImage('final_final_final_bg','tilesheet');
+		map.setCollisionBetween(0,170,true, '01platforms');
+		map.setCollisionBetween(0,174,true,'02platforms');
+		map.setCollisionBetween(0,174, true,'03platforms');
+		mapLayer = map.createLayer('01platforms');
+		mapLayer2 = map.createLayer('02platforms');
+		mapLayer3 = map.createLayer('03platforms');
+		plants = map.createLayer('01plants');
+		plants2 = map.createLayer('02plants');
+		plants3 = map.createLayer('03plants');
+
+
 
 		//create player character and enable arcade physics
 		player = game.add.sprite(100,game.world.height-100,'protag',5);
 		player.anchor.set(0,1);
 		game.physics.arcade.enable(player);
-		player.body.gravity.y = 200;	//1000														//give player gravity
+		player.body.gravity.y = 500;	//1000														//give player gravity
 		player.body.collideWorldBounds = true;													//make player collide with world bounds
 
 		//add player animations
@@ -68,20 +85,6 @@ GamePlay.prototype = {
 		//enable camera to follow player around
 		game.camera.follow(player);
 
-		//create floor object
-		floor = game.add.sprite(0,game.world.height-64,'mc');
-		floor.scale.setTo(10,10);
-		//set floor to black/easier on the eyes
-		floor.tint = 0x000000;
-		//enable arcade physics for the floor
-		game.physics.arcade.enable(floor);
-		floor.body.immovable = true;
-		
-
-		platform = game.add.sprite(0 , floor.y - 400, 'mc');
-		platform.scale.setTo(5, 1);
-		game.physics.arcade.enable(platform);
-		platform.body.immovable = true;
 
 		//audio
 		var selected = game.add.audio('selected');
@@ -188,12 +191,20 @@ GamePlay.prototype = {
 	},
 	update: function(){
 		//make player/floor collide
-		inContact = game.physics.arcade.collide(player,[floor,platform]);
+		inContact = game.physics.arcade.collide(player,[mapLayer,mapLayer2,mapLayer3]);
 
 		//set player's default parameters
 		player.body.velocity.x = 0;						//not moving
 		stepCount++;
 		step = stepCount % 30;
+
+		if(player.y < 100){
+			game.world.setBounds(0,0,game.width*2,2560);
+		}
+		if(player.x > game.width && player.y > game.height){
+			game.world.setBounds(game.width,0,game.width*2,2560);
+		}
+
 
 	},
 	render: function(){

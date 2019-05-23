@@ -38,6 +38,10 @@ Load.prototype = {
 		game.load.atlas('protagNeutral', 'assets/img/protag_neutral.png','assets/img/protag_neutral.json');
 		game.load.atlas('protagSad','assets/img/protag_sad.png','assets/img/protag_sad.json');
 
+		//background tilemap data, spritesheet
+		game.load.tilemap('gamestage', 'assets/img/gamemap.json', null, Phaser.Tilemap.TILED_JSON);
+		game.load.spritesheet('tilesheet','assets/img/final_final_final_bg.png',32,32);
+
 		//audio
 		game.load.audio('selected', 'assets/audio/select.mp3');
 		game.load.audio('changeSelection','assets/audio/select2.mp3');

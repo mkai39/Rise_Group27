@@ -33,7 +33,7 @@ Enemy.prototype.constructor = Enemy;
 
 Enemy.prototype.update = function(){
 	//enable collision between enemy mob and the floor
-	game.physics.arcade.collide(this, [floor,platform]);
+	game.physics.arcade.collide(this, mapLayer);
 	//when player overlaps with an enemy, start a battle
 	game.physics.arcade.collide(player,this,function(){
 		//check if enemy has been fought before
@@ -46,7 +46,6 @@ Enemy.prototype.update = function(){
 			battlescreen.anchor.setTo(0.5,0.5);
 			//create selector (shows player what action is selected)
 			selector = game.add.sprite(battlescreen.x - 150, battlescreen.y + 100,'select');
-			console.log(battlescreen.y);
 		}
 
 	}, null, this);
