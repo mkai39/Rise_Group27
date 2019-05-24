@@ -25,7 +25,7 @@ var selector;
 var inBattle;
 var inContact;
 var battleEnded;
-var mob, mob2;
+var mob, mob2, mob3, mob4, mob5;
 var stepCount = 0, step;
 var mapLayer, mapLayer2, mapLayer3;
 var plants, plants2, plants3;
@@ -81,10 +81,19 @@ GamePlay.prototype = {
 
 
 		//create enemy character
-		mob = new Enemy(game, 100, game.world.height-500, 'mob');
+		mob = new Enemy(game, 120, game.world.height-500, 'imp');
 		game.add.existing(mob);
-		mob2 = new Enemy(game, 300,game.world.height-100,'mob');
+
+		//flip mob and replace anchor
+		mob.anchor.setTo(0.5,0.5);
+		mob.scale.x *= -1;
+		mob.anchor.setTo(0,1);
+
+		mob2 = new Enemy(game, 300,game.world.height-100,'snek');
 		game.add.existing(mob2);
+
+		mob3 = new Enemy(game, 250, 1100, 'mob');
+		game.add.existing(mob3);
 
 		//enable camera to follow player around
 		game.camera.follow(player);
@@ -190,7 +199,6 @@ GamePlay.prototype = {
 				else if(selector.x == battlescreen.x){
 					//destroy the battle screen and selector objects, tell system game is no longer in battle state
 					battlescreen.destroy();
-	 				selector.destroy();
 	 				inBattle = false;
 				}
 			}
@@ -256,8 +264,6 @@ GamePlay.prototype = {
 		else{
 			mood = 'normal';
 		}
-
-
 
 
 	},
