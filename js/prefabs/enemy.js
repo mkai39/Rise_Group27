@@ -6,10 +6,7 @@
 //Enemy Prefab
 //Also covers part of battle sequence stuffs
 function Enemy (game, x, y, key){
-	// //turn 0 = player's turn
-	// //turn 1 = monster's turn
-	// var turn = 0;
-	this.battlePlayer;
+
 	//boolean to keep track of whether or not the player has fought this mob
 	this.haveFought = false;
 	//later, have a picker that will spawn different kind of enemy
@@ -40,13 +37,23 @@ function Enemy (game, x, y, key){
 	//snek
 	this.animations.add('baddie2', [0,1], 5, true);
 
+	this.animations.add('baddie3', [0,1,2,3,4,3,2,1,0], 5, true);
+
 }
 
 Enemy.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy.prototype.constructor = Enemy;
 
 Enemy.prototype.update = function(){
-	this.animations.play('baddie1');
+	if(this.key == 'imp'){
+		this.animations.play('baddie1');
+	}
+	else if(this.key == 'snek'){
+		this.animations.play('baddie2');
+	}
+	else if(this.key == 'wike mazowski'){
+		this.animations.play('baddie3');
+	}
 	//enable collision between enemy mob and the floor
 	game.physics.arcade.collide(this, mapLayer);
 	//when player overlaps with an enemy, start a battle

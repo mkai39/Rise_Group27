@@ -37,13 +37,3 @@ MainMenu.prototype = {
 		}
 	}
 }
-
-
-
-
-
-//code from button example
-// this.pauseButton = this.game.add.sprite(0, 0, 'pauseButton');
-// this.pauseButton.inputEnabled = true;
-// this.pauseButton.events.onInputUp.add(function () {this.game.paused = true;},this);
-// this.game.input.onDown.add(function () {if(this.game.paused)this.game.paused = false;},this);

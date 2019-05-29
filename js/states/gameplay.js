@@ -48,6 +48,7 @@ GamePlay.prototype = {
 
 		//enable arcade physics in the world
 		game.physics.startSystem(Phaser.Physics.ARCADE);
+		game.physics.arcade.TILE_BIAS = 32;
 
 		//tilemap
 		var map = game.add.tilemap('gamestage');
@@ -92,7 +93,7 @@ GamePlay.prototype = {
 		mob2 = new Enemy(game, 300,game.world.height-100,'snek');
 		game.add.existing(mob2);
 
-		mob3 = new Enemy(game, 250, 1100, 'mob');
+		mob3 = new Enemy(game, 250, 1100, 'wike mazowski');
 		game.add.existing(mob3);
 
 		//enable camera to follow player around
@@ -102,6 +103,7 @@ GamePlay.prototype = {
 		//audio
 		var selected = game.add.audio('selected');
 		var changeSel = game.add.audio('changeSelection');
+		changeSel.volume = 0.5;
 		var grass1 = game.add.audio('grass1');
 		var grass2 = game.add.audio('grass2');
 
@@ -238,6 +240,9 @@ GamePlay.prototype = {
 			}
 		};
 
+		this.black = game.add.sprite(game.camera.x,game.camera.y, 'overlay');
+		this.black.alpha = 0;
+
 	},
 	update: function(){
 		//make player/floor collide
@@ -248,22 +253,25 @@ GamePlay.prototype = {
 		stepCount++;
 		step = stepCount % 30;
 
-		if(player.y < 100){
+		if(player.y < 200){
 			game.world.setBounds(0,0,game.width*2,2560);
 		}
 		if(player.x > game.width && player.y > game.height){
-			game.world.setBounds(game.width,0,game.width*2,2560);
+			game.world.setBounds(game.width,0,game.width*2 + game.width/2,2560);
 		}
 
 		if(player.y < game.world.height-600 && player.y > game.height*1.5 && player.x < game.width){
 			mood = 'neutral';
 		}
-		else if(player.y < game.height*1.5 && player.x < game.width){
+		else if((player.y < game.height*1.5 && player.x < game.width) || player.x >game.width && player.x < game.width*2){
 			mood = 'sad';
 		}
 		else{
 			mood = 'normal';
 		}
+
+		this.black.x = game.camera.x;
+		this.black.y = game.camera.y;
 
 
 	},

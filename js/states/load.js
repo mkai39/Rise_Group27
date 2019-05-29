@@ -31,12 +31,17 @@ Load.prototype = {
 		game.load.image('mob','assets/img/TempBad.png');
 		game.load.image('battle','assets/img/battledraft.png');
 		game.load.image('select', 'assets/img/selection.png');
-		game.load.image('sky','assets/img/sky.png');
+		game.load.image('sky','assets/img/skyyy.png');
+		game.load.image('overlay','assets/img/overlay.png');
+
 		//texture atlas of diff expressioned player character walking animations
 		game.load.atlas('protag','assets/img/protag_all.png','assets/img/protag_all.json');
-		//baddie
+		game.load.atlas('protagFight', 'assets/img/protag_fight_all.png', 'assets/img/protag_fight_all.json');
+
+		//same but for mobs
 		game.load.atlas('imp', 'assets/img/baddie01.png', 'assets/img/baddie01.json');
 		game.load.atlas('snek','assets/img/baddie02.png', 'assets/img/baddie02.json');
+		game.load.atlas('wike mazowski','assets/img/baddie03.png', 'assets/img/baddie03.json');
 
 		//background tilemap data, spritesheet
 		game.load.tilemap('gamestage', 'assets/img/gamemap.json', null, Phaser.Tilemap.TILED_JSON);
