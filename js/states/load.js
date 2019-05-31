@@ -33,6 +33,8 @@ Load.prototype = {
 		game.load.image('select', 'assets/img/selection.png');
 		game.load.image('sky','assets/img/skyyy.png');
 		game.load.image('overlay','assets/img/overlay.png');
+		game.load.image('arrow','assets/img/menu_arrow.png');
+		game.load.image('menu','assets/img/menu.png');
 
 		//texture atlas of diff expressioned player character walking animations
 		game.load.atlas('protag','assets/img/protag_all.png','assets/img/protag_all.json');

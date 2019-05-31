@@ -241,7 +241,7 @@ GamePlay.prototype = {
 		};
 
 		this.black = game.add.sprite(game.camera.x,game.camera.y, 'overlay');
-		this.black.alpha = 0;
+		this.black.alpha = 0.5;
 
 	},
 	update: function(){
@@ -272,6 +272,13 @@ GamePlay.prototype = {
 
 		this.black.x = game.camera.x;
 		this.black.y = game.camera.y;
+		if(inBattle){
+			this.black.bringToTop();
+			this.black.visible = true;
+		}
+		else{
+			this.black.visible = false;
+		}
 
 
 	},
