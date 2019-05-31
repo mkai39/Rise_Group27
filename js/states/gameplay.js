@@ -15,17 +15,11 @@
 //everything is a global variable so I don't need to deal w this. at the moment
 var xMOVE_SPEED = 200;
 var player;
-var platform;
-var floor;
 var battlescreen = 1;
-var haveFought;
-var moving;
-var tempInstructions;
 var selector;
 var inBattle;
-var inContact;
-var battleEnded;
-var mob, mob2, mob3, mob4, mob5;
+var inContact;				//can be local variable
+var mob, mob2, mob3, mob4, mob5;			//prolly local variables
 var stepCount = 0, step;
 var mapLayer, mapLayer2, mapLayer3;
 var plants, plants2, plants3;
@@ -50,20 +44,21 @@ GamePlay.prototype = {
 		game.physics.startSystem(Phaser.Physics.ARCADE);
 		game.physics.arcade.TILE_BIAS = 32;
 
-		//tilemap
+		// put in tilemap
 		var map = game.add.tilemap('gamestage');
 		map.addTilesetImage('final_final_final_bg','tilesheet');
+		//add collisions between tiles and the in game sprites
 		map.setCollisionBetween(0,119,true, '01platforms');
 		map.setCollisionBetween(136,153,true, '01platforms');
 		map.setCollisionBetween(0,69,true,'02platforms');
 		map.setCollisionBetween(67,174, true,'03platforms');
+		//put in the tilemap layers
 		mapLayer = map.createLayer('01platforms');
 		mapLayer2 = map.createLayer('02platforms');
 		mapLayer3 = map.createLayer('03platforms');
 		plants = map.createLayer('01plants');
 		plants2 = map.createLayer('02plants');
 		plants3 = map.createLayer('03plants');
-
 
 		//create player character and enable arcade physics
 		player = game.add.sprite(100,game.world.height-100,'protag',5);
@@ -79,7 +74,6 @@ GamePlay.prototype = {
 		player.animations.add('neutWalkLeft', [10,11,12,13], 5, true);
 		player.animations.add('sadWalkRight', [26,27,28,29], 5, true);
 		player.animations.add('sadWalkLeft', [20,21,22,23], 5, true);
-
 
 		//create enemy character
 		mob = new Enemy(game, 120, game.world.height-500, 'imp');
@@ -106,6 +100,8 @@ GamePlay.prototype = {
 		changeSel.volume = 0.5;
 		var grass1 = game.add.audio('grass1');
 		var grass2 = game.add.audio('grass2');
+		grass1.volume = 0.25;
+		grass2.volume = 0.25;
 
 
 		//creating keys and their functions;
@@ -128,14 +124,14 @@ GamePlay.prototype = {
 				}
 
 				//walking audio
-				// if(inContact){
-				// 	if(step == 0){
-				// 		grass1.play();
-				// 	}
-				// 	else if(step == 15){
-				// 		grass2.play();
-				// 	}
-				// }
+				if(inContact){
+					if(step == 0){
+						grass1.play();
+					}
+					else if(step == 12){
+						grass2.play();
+					}
+				}
 			}
 			//When in Battle state
 			else if(inBattle){
@@ -241,7 +237,7 @@ GamePlay.prototype = {
 		};
 
 		this.black = game.add.sprite(game.camera.x,game.camera.y, 'overlay');
-		this.black.alpha = 0.5;
+		this.black.alpha = 0;
 
 	},
 	update: function(){
@@ -251,7 +247,7 @@ GamePlay.prototype = {
 		//set player's default parameters
 		player.body.velocity.x = 0;						//not moving
 		stepCount++;
-		step = stepCount % 30;
+		step = stepCount % 24;
 
 		if(player.y < 200){
 			game.world.setBounds(0,0,game.width*2,2560);

@@ -35,24 +35,27 @@ Load.prototype = {
 		game.load.image('overlay','assets/img/overlay.png');
 		game.load.image('arrow','assets/img/menu_arrow.png');
 		game.load.image('menu','assets/img/menu.png');
+		game.load.image('battle1','assets/img/fightscreen01.png');
+		game.load.image('battle2','assets/img/fightscreen02.png');
+		game.load.image('battle3','assets/img/fightscreen03.png');
 
 		//texture atlas of diff expressioned player character walking animations
-		game.load.atlas('protag','assets/img/protag_all.png','assets/img/protag_all.json');
-		game.load.atlas('protagFight', 'assets/img/protag_fight_all.png', 'assets/img/protag_fight_all.json');
+		game.load.atlas('protag','assets/img/protag_all.png','assets/img/json/protag_all.json');
+		game.load.atlas('protagFight', 'assets/img/protag_fight_all.png', 'assets/img/json/protag_fight_all.json');
 
 		//same but for mobs
-		game.load.atlas('imp', 'assets/img/baddie01.png', 'assets/img/baddie01.json');
-		game.load.atlas('snek','assets/img/baddie02.png', 'assets/img/baddie02.json');
-		game.load.atlas('wike mazowski','assets/img/baddie03.png', 'assets/img/baddie03.json');
+		game.load.atlas('imp', 'assets/img/baddie01.png', 'assets/img//json/baddie01.json');
+		game.load.atlas('snek','assets/img/baddie02.png', 'assets/img//json/baddie02.json');
+		game.load.atlas('wike mazowski','assets/img/baddie03.png', 'assets/img/json/baddie03.json');
 
 		//background tilemap data, spritesheet
-		game.load.tilemap('gamestage', 'assets/img/gamemap.json', null, Phaser.Tilemap.TILED_JSON);
+		game.load.tilemap('gamestage', 'assets/img/json/gamemap.json', null, Phaser.Tilemap.TILED_JSON);
 		game.load.spritesheet('tilesheet','assets/img/final_final_final_bg.png',32,32);
 
 		//audio
 		game.load.audio('selected', 'assets/audio/select.mp3');
 		game.load.audio('changeSelection','assets/audio/select2.mp3');
-		game.load.audio('grass1', 'assets/audio/grassStep.mp3');
+		game.load.audio('grass1', 'assets/audio/grassStep1.mp3');
 		game.load.audio('grass2', 'assets/audio/grassStep2.mp3');
 
 		//narration script
