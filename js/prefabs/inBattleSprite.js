@@ -8,34 +8,41 @@
 function InBattleSprite (game, which, key){
 
 	//variable to keep track of whether it's the player's or mob's turn in a battle
-	this.turn = 'player';
+	turn = 'player';
 	//variable to check if player sprite in the middle of attacking animation
 	//so the animation can play through before returning to default fight animation
 	this.attacking = false;
+	this.health;
+	this.damage;
 
 	//check what kind of sprite is being called
 	if(which == 'player'){
 		//create player sprite
 		Phaser.Sprite.call(this, game, battlescreen.x - 70, battlescreen.y + 10, 'protagFight', 5);
+		this.damage = 8;
 	}
 	else if(which == 'monster'){
 		//create monster sprite
 		Phaser.Sprite.call(this, game, battlescreen.x + 220, battlescreen.y + 10, key, 0);
-		if(this.key == 'snek'){
+		if(this.key == 'snekBig'){
 			//snek killed in 2 hits
-			this.health = 2;
+			this.health = 10;
 		}
-		else if(this.key == 'imp'){
-			//imp killed in three hits
-			this.health == 3;
+		else if(this.key == 'impBig'){
+			//imp killed in 3 hits
+			this.health = 14;
 		}
-		else if(this.key == 'wike mazowski'){
+		else if(this.key == 'wike mazowskiBig'){
 			//wike mazowski not to be killed
-			this.health == 500;
+			this.health = 500;
 		}
+		this.hpBar = game.add.sprite(this.x - 200, this.y - 200, 'hp');
+		this.hpTop = game.add.sprite(this.x - 200, this.y - 200, 'hpTop');
 	}
-	//make in battle sprites 2x as big as platform sprites
-	this.scale.setTo(2,2);
+	
+
+
+
 	this.anchor.setTo(1,1);
 
 	//adding animations
@@ -50,6 +57,8 @@ function InBattleSprite (game, which, key){
 	//eye, wike mazowski
 	this.animations.add('baddie3', [0,1,2,3,4,3,2,1,0], 4, true);
 
+	//game.add.tween(fightArrow).to( {x: fightArrow.x+7 }, 400, Phaser.Easing.Linear.None, true, 0, -1, true);
+
 }
 
 InBattleSprite.prototype = Object.create(Phaser.Sprite.prototype);
@@ -61,44 +70,42 @@ InBattleSprite.prototype.update = function(){
 	if(this.key == 'protagFight' && this.attacking == false){
 		this.animations.play('capeFlap');
 	}
-	else if(this.key == 'snek'){
+	else if(this.key == 'snekBig'){
 		this.animations.play('baddie2');
 	}
-	else if(this.key == 'imp'){
+	else if(this.key == 'impBig'){
 		this.animations.play('baddie1');
 	}
-	else if(this.key == 'wike mazowski'){
+	else if(this.key == 'wike mazowskiBig'){
 		this.animations.play('baddie3');
 	}
 
 	//check if it is the player's turn, and if the current sprite is the player
-	if(this.turn == 'player' && this.key == 'protagFight'){
-		//check if selector is pointed at FIGHT
-		if(selector.x < battlescreen.x){
-			//check if the player selected FIGHT
-			if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
-				//play attacking animation, the player is in the middle of attacking
-				this.attacking = true;
-				this.animations.play('slash');
-			}
-			//check if the last frame of attacking animation has played
-			if(this.frame == 10){
-				//player sprite is no longer attacking
-				this.attacking = false;
-			}
+	// if(turn == 'player' && this.key == 'protagFight'){
+	// 	//check if fightArrow is pointed at FIGHT
+	// 	if(fightArrowPos == 1){
+	// 		//check if the player selected FIGHT
+	// 		if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
+	// 			//play attacking animation, the player is in the middle of attacking
+	// 			this.attacking = true;
+	// 			game.add.tween(this).to({x: this.x + 90}, 200, Phaser.Easing.Linear.None, true, 0, 0, true);
+	// 			this.animations.play('slash');
+	// 		}
+	// 		//check if the last frame of attacking animation has played
+	// 		if(this.frame == 10){
+	// 			//player sprite is no longer attacking
+	// 			this.attacking = false;
+	// 		}
+	// 	}
+	// }
+
+	if(this.key == 'protagFight'){
+		if(this.frame == 10){
+			console.log('hello');
+			this.attacking = false;
 		}
 	}
 
 }
 
 //health bar = player.health/player.maxhealth
-
-	// var battleAction = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-	// battleAction.onDown.add(function(){
-	// 	if(inBattle && turn == 0){
-	// 		if(selector.x == battlescreen.x-150){
-	// 			console.log(this.health)
-	// 			console.log('fight');
-	// 		}
-	// 	}
-	// },this);

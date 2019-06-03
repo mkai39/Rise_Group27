@@ -11,22 +11,27 @@
 
 "use strict";
 
-
+//game.add.tween(fightArrow).to( {x: fightArrow.x+7 }, 400, Phaser.Easing.Linear.None, true, 0, -1, true);
 //everything is a global variable so I don't need to deal w this. at the moment
 var xMOVE_SPEED = 200;
 var player;
-var battlescreen = 1;
-var selector;
+var battlescreen, fightArrowPos;
+var fightArrow;
 var inBattle;
+var selected;
 var inContact;				//can be local variable
 var mob, mob2, mob3, mob4, mob5;			//prolly local variables
 var stepCount = 0, step;
 var mapLayer, mapLayer2, mapLayer3;
 var plants, plants2, plants3;
+var turn = 'none';
 var mood = 'normal';
 
 var GamePlay = function(game) {};
 GamePlay.prototype = {
+	init: function(){
+		this.bgm;
+	},
 	preload: function(){
 		console.log('GamePlay preload');
 	},
@@ -64,7 +69,7 @@ GamePlay.prototype = {
 		player = game.add.sprite(100,game.world.height-100,'protag',5);
 		player.anchor.set(0,1);
 		game.physics.arcade.enable(player);
-		player.body.gravity.y = 600;	//1000														//give player gravity
+		player.body.gravity.y = 700;	//1000														//give player gravity
 		player.body.collideWorldBounds = true;													//make player collide with world bounds
 
 		//add player animations
@@ -95,7 +100,7 @@ GamePlay.prototype = {
 
 
 		//audio
-		var selected = game.add.audio('selected');
+		selected = game.add.audio('selected');
 		var changeSel = game.add.audio('changeSelection');
 		changeSel.volume = 0.5;
 		var grass1 = game.add.audio('grass1');
@@ -103,6 +108,9 @@ GamePlay.prototype = {
 		grass1.volume = 0.25;
 		grass2.volume = 0.25;
 
+		//play platforming bgm on loop
+		this.bgm = game.add.audio('platformingBGM');
+		this.bgm.loopFull();
 
 		//creating keys and their functions;
 		//designate what is done when right key pressed/held down
@@ -135,11 +143,19 @@ GamePlay.prototype = {
 			}
 			//When in Battle state
 			else if(inBattle){
-				//check if selector is over 'fight' button
-				if(selector.x == battlescreen.x - 150){
-					//move selector over from 'fight' to 'run'
-					selector.x += 150;
+				//fightArrow points at FIGHT
+				if(fightArrowPos == 1){
+					//move fightArrow from FIGHT to BAG
+					fightArrow.x += 130;
+					fightArrowPos = 2;
 					changeSel.play();							//feedback noise
+				}
+				//fightArrow points at SKILL
+				if(fightArrowPos == 3){
+					//move fightArrow from SKILL to RUN
+					fightArrow.x += 130;
+					fightArrowPos = 4;
+					changeSel.play();
 				}
 			}
 		};
@@ -160,15 +176,34 @@ GamePlay.prototype = {
 				}
 				else{
 					player.animations.play('walkLeft');
-				}			
+				}
+
+				//walking audio
+				if(inContact){
+					if(step == 0){
+						grass1.play();
+					}
+					else if(step == 12){
+						grass2.play();
+					}
+				}
+
 			}
 			//When in Battle state
 			else if(inBattle){
-				//check if selecto is over 'run' button
-				if(selector.x == battlescreen.x){
-					//move selector over from 'run' to 'fight'
-					selector.x -= 150;
+				//fightArrow points at BAG
+				if(fightArrowPos == 2){
+					//move fightArrow from BAG to FIGHT
+					fightArrow.x -= 130;
+					fightArrowPos = 1;
 					changeSel.play();						//feedback noise
+				}
+				//fightArrow points at RUN
+				else if(fightArrowPos == 4){
+					//move fightArrow from RUN to SKILL
+					fightArrow.x -= 130;
+					fightArrowPos = 3;
+					changeSel.play();
 				}
 			}
 		};
@@ -181,26 +216,67 @@ GamePlay.prototype = {
 				//move up(jump)
 				player.body.velocity.y = -500;
 			}
+			else if(inBattle){
+				//fightArrow points at SKILL
+				if(fightArrowPos == 3){
+					//move fightArrow from SKILL to FIGHT
+					fightArrow.y -= 75;
+					fightArrowPos = 1;
+					changeSel.play();
+				}
+				//fightArrow points at RUN
+				else if(fightArrowPos == 4){
+					//move fightArrow from RUN to BAG
+					fightArrow.y -= 75;
+					fightArrowPos = 2;
+					changeSel.play();
+				}
+			}
+
 		}, this);
 
-		//designate what's done when space pressed
-		var selAction = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-		selAction.onDown.add(function(){
-			//when in Battle
+		var downSel = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+		downSel.onDown.add(function(){
+			//when in battle
 			if(inBattle){
-				//selected 'fight'
-				if(selector.x == battlescreen.x - 150){
-					//play sound
-					selected.play();
+				//fightArrow points at FIGHT
+				if(fightArrowPos == 1){
+					//move fightArrow from FIGHT to SKILL
+					fightArrow.y += 75;
+					fightArrowPos = 3;
+					changeSel.play();
 				}
-				//selected 'run'
-				else if(selector.x == battlescreen.x){
-					//destroy the battle screen and selector objects, tell system game is no longer in battle state
-					battlescreen.destroy();
-	 				inBattle = false;
+				//fightArrow points at BAG
+				else if(fightArrowPos == 2){
+					//move fightArrow from BAG to RUN
+					fightArrow.y += 75;
+					fightArrowPos = 4;
+					changeSel.play();
 				}
 			}
 		}, this);
+
+		//designate what's done when space pressed
+		// var selAction = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+		// selAction.onDown.add(function(){
+		// 	//when in Battle
+		// 	if(inBattle){
+		// 		//selected 'fight'
+		// 		if(fightArrowPos == 1){
+		// 			//play sound
+		// 			selected.play();
+		// 		}
+		// 		//selected 'run'
+		// 		else if(fightArrowPos == 4){
+		// 			//destroy the battle screen and fightArrow objects, tell system game is no longer in battle state
+		// 			battlescreen.destroy();
+	 // 				inBattle = false;
+		// 		}
+		// 	}
+		// }, this);
+
+
+
 
 		//when key is released, do these actions
 		game.input.keyboard.onUpCallback = function (e){
@@ -245,7 +321,8 @@ GamePlay.prototype = {
 		inContact = game.physics.arcade.collide(player,[mapLayer,mapLayer2,mapLayer3]);
 
 		//set player's default parameters
-		player.body.velocity.x = 0;						//not moving
+		player.body.velocity.x = 0;						//when not moving
+		//counter for steps so walking sfx sounds natural-ish
 		stepCount++;
 		step = stepCount % 24;
 
@@ -256,6 +333,8 @@ GamePlay.prototype = {
 			game.world.setBounds(game.width,0,game.width*2 + game.width/2,2560);
 		}
 
+
+		//set player character mood, affects expressions/music
 		if(player.y < game.world.height-600 && player.y > game.height*1.5 && player.x < game.width){
 			mood = 'neutral';
 		}
@@ -265,6 +344,26 @@ GamePlay.prototype = {
 		else{
 			mood = 'normal';
 		}
+
+
+
+
+		if(inBattle){
+			//mute platoforming music
+			this.bgm.volume = 0;
+			//keep player sprite in platformer from moving during battle in case player falls/other once battle starts
+			//keeps battlescreen from being NOT fixed to camera
+			player.body.moves = false;
+		}
+		else{
+			//return to normal
+			player.body.moves = true;
+			this.bgm.volume = 1;
+		}
+
+
+
+
 
 		this.black.x = game.camera.x;
 		this.black.y = game.camera.y;
