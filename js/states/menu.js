@@ -10,9 +10,6 @@
 
 "use strict";
 
-
-var button;
-
 var MainMenu = function(game) {};
 MainMenu.prototype = {
 	init: function(){
@@ -22,6 +19,7 @@ MainMenu.prototype = {
 		this.position = 1;
 		this.changeSel;
 		this.sel;
+		this.bgm;
 	},
 	preload: function(){
 		console.log('MainMenu preload');
@@ -34,12 +32,15 @@ MainMenu.prototype = {
 		game.add.sprite(0,0,'menu');
 
 		//create selector arrow object
-		this.arrow = game.add.sprite(30,220,'arrow');
+		this.arrow = game.add.sprite(30,220,'menuArrow');
 		//makes arrow bob from side to side
 		game.add.tween(this.arrow).to( {x: this.arrow.x+7 }, 400, Phaser.Easing.Linear.None, true, 0, -1, true);
 
 		this.changeSel = game.add.audio('changeSelection');
 		this.sel = game.add.audio('selected');
+		//create and play menu bgm on loop
+		this.bgm = game.add.audio('menuBGM');
+		this.bgm.loopFull();
 
 	},
 	update: function(){
@@ -65,6 +66,7 @@ MainMenu.prototype = {
 			//go to next state
 			game.state.start('GamePlay');
 			this.sel.play();						//lower pitched noise to contrast with high. also player feedback
+			this.bgm.stop();
 		}
 	}
 }
