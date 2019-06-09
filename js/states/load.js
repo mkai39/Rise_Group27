@@ -39,6 +39,12 @@ Load.prototype = {
 		game.load.image('hp','assets/img/hp_darkred.png');
 		game.load.image('hpTop', 'assets/img/hp_red.png');
 		game.load.image('miss','assets/img/miss.png');
+
+		//controls tutorial
+		game.load.atlas('space', 'assets/img/space.png', 'assets/img/json/space.json');
+		game.load.atlas('upKey', 'assets/img/arrows3.png', 'assets/img/json/arrows3.json');
+		game.load.atlas('arrowKeys', 'assets/img/arrows2.png', 'assets/img/json/arrows2.json');
+
 		//menu/credits
 		game.load.image('startCredits', 'assets/img/start_credits.png');
 		game.load.image('menu','assets/img/menu.png');
@@ -67,6 +73,14 @@ Load.prototype = {
 		game.load.tilemap('gamestage', 'assets/img/json/tile_map.json', null, Phaser.Tilemap.TILED_JSON);
 		game.load.spritesheet('tilesheet','assets/img/final_final_final_bg.png',32,32);
 
+
+
+		//narration images
+		game.load.image('narrateBG', 'assets/img/open/narration_bg.png');
+		game.load.image('pg1','assets/img/open/1.png');
+		game.load.image('pg2', 'assets/img/open/2.png');
+
+
 		//audio
 		//sfx
 		game.load.audio('selected', 'assets/audio/select.mp3');
@@ -84,8 +98,7 @@ Load.prototype = {
 		game.load.audio('platformingBGM', 'assets/audio/PLATFORMING_PerituneMaterial_OverWorld.mp3');
 		game.load.audio('resolutionBGM', 'assets/audio/RESOLUTION_PerituneMaterial_GentleTheme_Piano.mp3');
 
-		//narration script
-		game.load.text('narration','js/narration.json');
+
 
 	},
 	update: function(){
