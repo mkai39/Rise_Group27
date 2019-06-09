@@ -48,15 +48,19 @@ function Enemy (game, x, y, key){
 	//chatter
 	this.animations.add('baddie4', [0,1,2,3,4,5,6,5,4,3,2,1,0], 8, true);
 
+	//transition for giong into and out of battles
 	this.transition = game.add.tween(black).to({alpha: 1}, 100,Phaser.Easing.Linear.None, false,0,0,false);
+	//when darkening tween starts
 	this.transition.onStart.add(function(){
-		inBattle = true;										//game is in battle state
+		//only change inBattle to true when openin transition
+		if(!this.haveFought){
+			inBattle = true;										//game is in battle state
+		}
 	}, this);
 	this.transition2 = game.add.tween(black).to({alpha:0}, 300, Phaser.Easing.Linear.None, false,100,0,false);
 	this.transition2.onStart.add(function(){
 		this.transitionEnded = true;
 	}, this);
-	this.transition2  
 	this.transition.chain(this.transition2);
 
 }
@@ -94,7 +98,6 @@ Enemy.prototype.update = function(){
 			this.transition.start();
 		}
 
-
 		//check if enemy has been fought before
 		//and if transition has been completed
 		//happens once per encounter
@@ -102,7 +105,6 @@ Enemy.prototype.update = function(){
 			//if not, game will BEGIN BATTLE
 
 			turn = 'player';										//begin on player's turn
-			//inBattle = true;										//game is in battle state
 			this.haveFought = true;									//enemy has now been 'fought'
 
 			//UI
@@ -166,6 +168,17 @@ Enemy.prototype.update = function(){
 						//FIGHT was selected
 						if(fightArrowPos == 1){
 							//animation
+
+							//check if black overlay is almost completely black
+							if(black.alpha >= 0.7){
+								//create cant fight popup
+								this.sel.play();
+								this.cantfight = game.add.sprite(game.camera.x,game.camera.y,'cantFight', 0);
+								//cant fight popup is onscreen
+								this.triedToFight = true;
+							}
+
+
 							this.battlePlayer.attacking = true;							//mark player as attacking
 							//move player
 							var playerAttack = game.add.tween(this.battlePlayer).to({x: this.battleEnemy.x - this.battleEnemy.width/2}, 300, Phaser.Easing.Linear.None, true, 0, 0, true);
@@ -199,8 +212,8 @@ Enemy.prototype.update = function(){
 								healthChange.onComplete.add(function(){
 									//check if enemy has no more hp
 									if(this.battleEnemy.health <= 0){
-									//	this.transitionEnded = false;
 										turn = 'battle over';								//no one's turn
+										this.transition.start();							//exit transition
 										battlescreen.destroy();								//get rid of battlescreen
 	 									inBattle = false;									//battle is over
 									}
@@ -210,8 +223,6 @@ Enemy.prototype.update = function(){
 
 								//the enemy's (1) attack counter is reset
 								this.battleEnemy.playOnce = false;
-	
-				
 							}, this);
 							//the player's (1) attack counter is reached. player has attacked this turn
 							this.battlePlayer.playOnce = true;
@@ -231,8 +242,8 @@ Enemy.prototype.update = function(){
 								this.triedToRun = true;
 							}
 							else{
-								//this.transitionEnded = false;
 								turn = 'battle over';										//no one's turn
+								this.transition.start();									//exit transition
 								battlescreen.destroy();										//get rid of battlescreen
 								inBattle = false;											//battle is over
 							}
@@ -240,9 +251,20 @@ Enemy.prototype.update = function(){
 					}
 					//cant run popup is up
 					else if(this.triedToRun == true){
-						this.changeSel.play();
+						this.changeSel.play();												//play feedback audio
 						this.cantrun.destroy();												//get rid of popup
 						this.triedToRun = false;											//popup is no longer on screen
+					}
+					//cant fight popup is up
+					else if(this.triedToFight == true){
+						this.cantfight.frame ++;											//go to next part of message
+						this.changeSel.play();												//play feedback audio
+						//check if final frame of message series
+						if(this.cantfight.frame == 2){
+							//destroy popup, popup no longeer on screen
+							this.triedToFight = false;
+							this.cantfight.destroy();
+						}
 					}
 				}
 			},this);
@@ -275,7 +297,7 @@ Enemy.prototype.update = function(){
 				},this);
 				missTween.chain(missTween2);
 					//check if player char's damage is 0, current monster is an abstract one
-					if(this.battlePlayer.damage == 0){
+					if(this.battlePlayer.damage == 0 && black.alpha < 0.7){
 						//fade closer to black each time player is attacked
 						game.add.tween(black).to({alpha: black.alpha + 0.1}, 400,Phaser.Easing.Linear.None,true,300,0,false);
 					}
@@ -283,17 +305,16 @@ Enemy.prototype.update = function(){
 				this.battleEnemy.playOnce = true;
 			}
 		}
-
-		//check if black overlay is almost completely black
-		// if(black.alpha >= 0.8){
-		// 	//create cant fight popup
-		// 	this.cantfight = game.add.sprite(0,0,'cantFight', 0);
-		// 	//cant fight popup is onscreen
-		// 	this.triedToFight = true;
-		// }
-		// if(black.alpha == 0){
-		// 	this.triedToFight = false;
-		// }
+		//cant fight popup is onscreen
+		if(this.triedToFight == true){
+			//keep it on top layer
+			this.cantfight.bringToTop();
+		}
+		//check if black overlay is completely invisible
+		if(black.alpha == 0){
+			//then cnt fight popup will never be on screen
+			this.triedToFight = false;
+		}
 
 
 
