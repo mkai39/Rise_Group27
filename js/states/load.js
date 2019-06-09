@@ -28,17 +28,19 @@ Load.prototype = {
 
 		//preload assets
 		//art
-		game.load.image('select', 'assets/img/selection.png');
 		//bg
-		game.load.image('sky','assets/img/skyyy.png');
+		game.load.image('sky','assets/img/sky_complete.png');
 		game.load.image('overlay','assets/img/overlay.png');
+		//UI
 		game.load.image('menuArrow','assets/img/menu_arrow.png');
 		game.load.image('fightArrow', 'assets/img/fightarrow.png');
 		game.load.image('cantRun', 'assets/img/cantrun_large_center.png');
+		game.load.atlas('cantFight', 'assets/img/cantfight.png', 'assets/img/json/cantfight.json');
 		game.load.image('hp','assets/img/hp_darkred.png');
 		game.load.image('hpTop', 'assets/img/hp_red.png');
-
-		//menu image
+		game.load.image('miss','assets/img/miss.png');
+		//menu/credits
+		game.load.image('startCredits', 'assets/img/start_credits.png');
 		game.load.image('menu','assets/img/menu.png');
 		//the battle screen
 		game.load.atlas('fightScreen', 'assets/img/fightscreen_all.png', 'assets/img/json/fightscreen_all.json');
@@ -52,22 +54,26 @@ Load.prototype = {
 		game.load.atlas('imp', 'assets/img/baddie01.png', 'assets/img/json/baddie01.json');
 		game.load.atlas('snek','assets/img/baddie02.png', 'assets/img/json/baddie02.json');
 		game.load.atlas('wike mazowski','assets/img/baddie03.png', 'assets/img/json/baddie03.json');
+		game.load.atlas('chatter','assets/img/baddie04.png', 'assets/img/json/baddie04.json');
+		game.load.atlas('boss', 'assets/img/boss.png', 'assets/img/json/boss.json');
 		//large battlesprites for mobs
 		game.load.atlas('impBig', 'assets/img/baddie01_large.png', 'assets/img/json/baddie01_large.json');
         game.load.atlas('snekBig', 'assets/img/baddie02_large.png', 'assets/img/json/baddie02_large.json');
         game.load.atlas('wike mazowskiBig', 'assets/img/baddie03_large.png', 'assets/img/json/baddie03_large.json');
+        game.load.atlas('chatterBig', 'assets/img/baddie04_large.png', 'assets/img/json/baddie04_large.json');
 
 
 		//background tilemap data, spritesheet
-		game.load.tilemap('gamestage', 'assets/img/json/gamemap.json', null, Phaser.Tilemap.TILED_JSON);
+		game.load.tilemap('gamestage', 'assets/img/json/tile_map.json', null, Phaser.Tilemap.TILED_JSON);
 		game.load.spritesheet('tilesheet','assets/img/final_final_final_bg.png',32,32);
 
 		//audio
 		//sfx
 		game.load.audio('selected', 'assets/audio/select.mp3');
 		game.load.audio('changeSelection','assets/audio/select2.mp3');
-		game.load.audio('grass1', 'assets/audio/grassStep1.mp3');
-		game.load.audio('grass2', 'assets/audio/grassStep2.mp3');
+		game.load.audio('step1', 'assets/audio/footsteps.mp3');
+		game.load.audio('step2', 'assets/audio/footsteps_louder.mp3');
+		game.load.audio('shing', 'assets/audio/attack.wav');
 
 		//bgms
 		game.load.audio('battleBGM', 'assets/audio/BATTLE_PerituneMaterial_Rapid2.mp3');
@@ -76,7 +82,7 @@ Load.prototype = {
 		game.load.audio('getupBGM', 'assets/audio/GETUP_PerituneMaterial_Memories3.mp3');
 		game.load.audio('menuBGM', 'assets/audio/MENU_PerituneMaterial_Wish4.mp3');
 		game.load.audio('platformingBGM', 'assets/audio/PLATFORMING_PerituneMaterial_OverWorld.mp3');
-		game.load.audio('resolutionBGM', 'assets/audio/RESOLUTION_PerituneMaterial_Gentle Theme_Piano.mp3');
+		game.load.audio('resolutionBGM', 'assets/audio/RESOLUTION_PerituneMaterial_GentleTheme_Piano.mp3');
 
 		//narration script
 		game.load.text('narration','js/narration.json');
