@@ -61,13 +61,15 @@ Load.prototype = {
 		game.load.atlas('snek','assets/img/baddie02.png', 'assets/img/json/baddie02.json');
 		game.load.atlas('wike mazowski','assets/img/baddie03.png', 'assets/img/json/baddie03.json');
 		game.load.atlas('chatter','assets/img/baddie04.png', 'assets/img/json/baddie04.json');
+		game.load.atlas('bed', 'assets/img/baddie05.png', 'assets/img/json/baddie05.json');
 		game.load.atlas('boss', 'assets/img/boss.png', 'assets/img/json/boss.json');
 		//large battlesprites for mobs
 		game.load.atlas('impBig', 'assets/img/baddie01_large.png', 'assets/img/json/baddie01_large.json');
         game.load.atlas('snekBig', 'assets/img/baddie02_large.png', 'assets/img/json/baddie02_large.json');
         game.load.atlas('wike mazowskiBig', 'assets/img/baddie03_large.png', 'assets/img/json/baddie03_large.json');
         game.load.atlas('chatterBig', 'assets/img/baddie04_large.png', 'assets/img/json/baddie04_large.json');
-
+		game.load.atlas('bedBig', 'assets/img/baddie05_large.png', 'assets/img/json/baddie05_large.json');
+		game.load.atlas('bossBig', 'assets/img/boss_large.png', 'assets/img/json/boss_large.json');
 
 		//background tilemap data, spritesheet
 		game.load.tilemap('gamestage', 'assets/img/json/tile_map.json', null, Phaser.Tilemap.TILED_JSON);
