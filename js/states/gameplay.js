@@ -18,20 +18,20 @@ var player;
 var battlescreen, fightArrowPos;
 var fightArrow;
 var inBattle;
-var selected;//local
 var black;
 var stepCount = 0, step;
-var inContact;				//can be local variable
+var inContact;
 var turn = 'none';
 var mood = 'normal';
 var mapLayer;
+var cutscene = false;
 
 var GamePlay = function(game) {};
 GamePlay.prototype = {
 	init: function(){
 		this.bgm;
 		this.mob,this.mob2,this.mob3,this.mob4,this.mob5;
-		//this.xMOVE_SPEED = 200;
+		this.boss;
 	},
 	preload: function(){
 		console.log('GamePlay preload');
@@ -65,7 +65,7 @@ GamePlay.prototype = {
 		var plants = map.createLayer('plants');
 
 		//create player character and enable arcade physics
-		player = game.add.sprite(100,game.world.height-100,'protag',5);
+		player = game.add.sprite(200,175,'protag',5);
 		player.anchor.set(0,1);
 		game.physics.arcade.enable(player);
 		player.body.gravity.y = 700;	//1000												//give player gravity
@@ -74,7 +74,7 @@ GamePlay.prototype = {
 		player.body.moves = true;															//initialize that player moves
 
 
-		//add player animations
+		//add player walking animations
 		player.animations.add('walkRight', [6,7,8,9], 5,true);
 		player.animations.add('walkLeft',[0,1,2,3], 5,true);
 		player.animations.add('neutWalkRight', [16,17,18,19], 5, true);
@@ -100,25 +100,38 @@ GamePlay.prototype = {
 		this.mob4 = new Enemy(game, 400, 700, 'chatter');
 		game.add.existing(this.mob4);
 
+		this.mob5 = new Enemy(game,150,400,'bed');
+		game.add.existing(this.mob5);
+
+		//flip mob 5
+		this.mob5.anchor.setTo(0.5,0.5);
+		this.mob5.scale.x *= -1;
+		this.mob5.anchor.setTo(0,1);
+
+		this.boss = new Enemy(game, 375,50,'boss');
+		game.add.existing(this.boss);
+
+
 		//enable camera to follow player around
 		game.camera.follow(player);
 
 
 		//audio
-		selected = game.add.audio('selected');
+		var selected = game.add.audio('selected');
 		var changeSel = game.add.audio('changeSelection');
 		changeSel.volume = 0.5;
 		var step1 = game.add.audio('step1');
 		var step2 = game.add.audio('step2');
-		//step1.volume = 0.25;
-		//step2.volume = 0.25;
 
 		//play platforming bgm on loop
 		this.bgm = game.add.audio('platformingBGM');
 		this.bgm.loopFull();
 		this.bgm.volume = 0.25;
 
-		//creating keys and their functions
+
+
+		//KEYS AND THEIR FUNCTIONS
+
 		//RIGHT key's functions
 		game.input.keyboard.addKey(Phaser.Keyboard.RIGHT).onHoldCallback = function(){
 			//When in Platformer state
@@ -214,7 +227,7 @@ GamePlay.prototype = {
 			}
 		};
 
-		//designate what is done when up key is pressed
+		//UP key's functions
 		var moveUp = game.input.keyboard.addKey(Phaser.Keyboard.UP);
 		moveUp.onDown.add(function(){
 			//When in Platformer state and touching the ground
@@ -242,6 +255,7 @@ GamePlay.prototype = {
 
 		}, this);
 
+		//DOWN key's functions
 		var downSel = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
 		downSel.onDown.add(function(){
 			//when in battle
@@ -263,6 +277,7 @@ GamePlay.prototype = {
 			}
 		}, this);
 
+		//SPACEBAR key's functions
 		var spaceJump = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 		spaceJump.onDown.add(function(){
 			//When in Platformer state and touching the ground
@@ -323,7 +338,7 @@ GamePlay.prototype = {
 		step = stepCount % 30;
 
 		//when player reaches a certain height, make the world wider
-		if(player.y < 200){
+		if(player.y < 150 ){
 			game.world.setBounds(0,0,game.width*2,2560);
 		}
 		//when player reaches stage2, extend world again
@@ -345,34 +360,35 @@ GamePlay.prototype = {
 
 
 
-
+		//check if in battle
 		if(inBattle){
-			//mute platoforming music
+			//mute platforming music
 			this.bgm.volume = 0;
 			//keep player sprite in platformer from moving during battle in case player falls/other once battle starts
 			//keeps battlescreen from being NOT fixed to camera
 			player.body.moves = false;
 		}
+		//if in platforming mode
 		else{
 			//return to normal
 			player.body.moves = true;
-			this.bgm.volume = 0.25;
+			//fade music
+			if(player.y < game.world.height/5 * 2){
+				game.add.tween(this.bgm).to({volume: 0}, 500, Phaser.Easing.Linear.None, true,0,0,false);
+				
+				//this.bgm.volume = 0;
+			}else{
+				this.bgm.volume = 0.25;
+			}
 		}
-
-
-
 
 		//fix to camera
 		black.x = game.camera.x;
 		black.y = game.camera.y;
 
-		// if(inBattle){
-		 	black.bringToTop();
-		// 	black.visible = true;
-		// }
-		// else{
-		// 	black.visible = false;
-		// }
+		//bring overlay to the top
+		black.bringToTop();
+
 
 		//restart state
 		if(game.input.keyboard.isDown(Phaser.Keyboard.R)){
