@@ -24,6 +24,8 @@ function Enemy (game, x, y, key){
 	this.triedToFight = false;
 	//tells game transition status to time battle start
 	this.transitionEnded = false;
+	//rate at which overlay darkens by
+	this.DARKENING_RATE = 0.1;
 
 	//call enemy as a sprite
 	Phaser.Sprite.call(this, game, x, y, key, 0);
@@ -34,11 +36,21 @@ function Enemy (game, x, y, key){
 	this.body.gravity.y = 1000;
 
 	//battle music
-	this.bgm = game.add.audio('battleBGM');
+	if(this.key == 'boss'){
+		this.bgm = game.add.audio('bossbattleBGM');
+	}
+	else{
+		this.bgm = game.add.audio('battleBGM');
+	}
+
+	if(this.key == 'boss'){
+		this.DARKENING_RATE = 0.2;
+	}
+	//selection noises
 	this.sel = game.add.audio('selected');
 	this.changeSel = game.add.audio('changeSelection');
 
-	//animations for each type of baddie
+	//ANIMATIONS
 	//imp
 	this.animations.add('baddie1', [0,1,2,3,4,5,6,7,8,7,6,5,4,3,2,1,0], 7, true);
 	//snek
@@ -47,7 +59,12 @@ function Enemy (game, x, y, key){
 	this.animations.add('baddie3', [0,1,2,3,4,3,2,1,0], 5, true);
 	//chatter
 	this.animations.add('baddie4', [0,1,2,3,4,5,6,5,4,3,2,1,0], 8, true);
+	//bed
+	this.animations.add('baddie5', [0,1,2,3], 6, true);
+	//boss
+	this.animations.add('bossAni', [0,1,2,3,4,5,6,7], 8, true);
 
+	//TWEENs
 	//transition for giong into and out of battles
 	this.transition = game.add.tween(black).to({alpha: 1}, 100,Phaser.Easing.Linear.None, false,0,0,false);
 	//when darkening tween starts
@@ -88,12 +105,20 @@ Enemy.prototype.update = function(){
 	else if(this.key == 'chatter'){
 		this.animations.play('baddie4');
 	}
+	else if(this.key == 'bed'){
+		this.animations.play('baddie5');
+	}
+	else if(this.key == 'boss'){
+		this.animations.play('bossAni');
+	}
+
+
 
 	//BATTLE
 
 	//start battle when player collides with Enemy mob
 	game.physics.arcade.overlap(player,this,function(){
-
+		//at beginning of battle, transition
 		if(!this.haveFought){
 			this.transition.start();
 		}
@@ -103,14 +128,14 @@ Enemy.prototype.update = function(){
 		//happens once per encounter
 		if(!this.haveFought && this.transitionEnded == true){
 			//if not, game will BEGIN BATTLE
-
 			turn = 'player';										//begin on player's turn
 			this.haveFought = true;									//enemy has now been 'fought'
+
 
 			//UI
 
 			//create battlescreen in center of screen
-			battlescreen = game.add.sprite(game.width/2,game.camera.y + game.height/2,'fightScreen');
+			battlescreen = game.add.sprite(game.camera.x + game.width/2,game.camera.y + game.height/2,'fightScreen');
 			
 			//change which battlescreen is used depending on mob player is fighting
 			if(this.key == 'snek'){
@@ -124,6 +149,12 @@ Enemy.prototype.update = function(){
 			}
 			else if(this.key == 'chatter'){
 				battlescreen.frame = 3;
+			}
+			else if(this.key == 'bed'){
+				battlescreen.frame = 4;
+			}
+			else if(this.key == 'boss'){
+				battlescreen.frame = 5;
 			}
 			//anchor is in the center (so UI can be made based on this position)
 			battlescreen.anchor.setTo(0.5,0.5);
@@ -149,8 +180,8 @@ Enemy.prototype.update = function(){
 			//create the in battle sprites for both player and enemy
 			this.battlePlayer = new InBattleSprite(game, 'player', this.key);
 			this.battleEnemy = new InBattleSprite(game, 'monster', this.key + 'Big');
-			game.add.existing(this.battlePlayer);
 			game.add.existing(this.battleEnemy);
+			game.add.existing(this.battlePlayer);
 
 			//check if current monster is an abstract monster
 			if(this.key != 'imp' && this.key != 'snek'){
@@ -161,16 +192,20 @@ Enemy.prototype.update = function(){
 			//function for when action is selected during battle by player
 			var battleAction = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 			battleAction.onDown.add(function(){
+
+				//PLAYERS TURN
+
 				//check if game currently in battle, it is currently the PLAYER's turn
 				if(this.battlePlayer.playOnce == false){
 					//check if in battle, is player's turn, and popups not currently up
 					if(inBattle && turn == 'player' && this.triedToRun == false && this.triedToFight == false){
+
 						//FIGHT was selected
 						if(fightArrowPos == 1){
-							//animation
 
+							//CANT FIGHT POPUP
 							//check if black overlay is almost completely black
-							if(black.alpha >= 0.7){
+							if(black.alpha >= 0.7 && this.key != 'boss'){
 								//create cant fight popup
 								this.sel.play();
 								this.cantfight = game.add.sprite(game.camera.x,game.camera.y,'cantFight', 0);
@@ -178,6 +213,7 @@ Enemy.prototype.update = function(){
 								this.triedToFight = true;
 							}
 
+							//PLAYER MOVEMENT/ANIMATIONS
 
 							this.battlePlayer.attacking = true;							//mark player as attacking
 							//move player
@@ -185,6 +221,8 @@ Enemy.prototype.update = function(){
 							//call function when tween starts
 							playerAttack.onStart.add(function(){
 								this.battlePlayer.animations.play('slash');					//play slash animation
+
+								//PLAYER HAS MISSED ENEMY
 
 								//check if player's damage is equal to 0, then this monster is an abstract one
 								if(this.battlePlayer.damage == 0){
@@ -198,6 +236,9 @@ Enemy.prototype.update = function(){
 									missTween.chain(missTween2);						//chain the two tweens
 								}
 							}, this);
+
+							//HEALTH CALCULATIONS
+
 							//call function when tween is finished
 							playerAttack.onComplete.add(function(){
 								//player damages monster
@@ -206,12 +247,17 @@ Enemy.prototype.update = function(){
 								if(this.battleEnemy.health <= 0){
 									this.battleEnemy.health = 0;
 								}
+
+								//HP BAR ANIMATIONS
+
 								//hp bar goes down
 								var healthChange = game.add.tween(this.battleEnemy.hpTop.scale).to({x: this.battleEnemy.health/this.battleEnemy.maxHealth}, 200, Phaser.Easing.Linear.None, true,0,0,false);
 								//call function when tween is finished
 								healthChange.onComplete.add(function(){
 									//check if enemy has no more hp
 									if(this.battleEnemy.health <= 0){
+
+										//END BATTLE
 										turn = 'battle over';								//no one's turn
 										this.transition.start();							//exit transition
 										battlescreen.destroy();								//get rid of battlescreen
@@ -227,25 +273,37 @@ Enemy.prototype.update = function(){
 							//the player's (1) attack counter is reached. player has attacked this turn
 							this.battlePlayer.playOnce = true;
 						}
+
 						//SKILL or BAG was selected, those are not available options
 						if(fightArrowPos == 2 || fightArrowPos == 3){
 							this.sel.play();									//play error noise
 						}
+
 						//RUN was selected
 						if(fightArrowPos == 4){
+
+							//CANT RUN POPUP
+
 							//player not allowed to run for snake and imp monsters mobs 1,2
-							if(this.key == 'snek' || this.key == 'imp'){
+							if(this.key == 'snek' || this.key == 'imp' || this.key == 'boss'){
 								//create cant run popup
 								this.sel.play();
 								this.cantrun = game.add.sprite(game.camera.x,game.camera.y,'cantRun');
 								//cant run popup is currently on screen
 								this.triedToRun = true;
 							}
+
+							//END BATTLE
 							else{
 								turn = 'battle over';										//no one's turn
 								this.transition.start();									//exit transition
 								battlescreen.destroy();										//get rid of battlescreen
 								inBattle = false;											//battle is over
+								//glitch where after running, key of monster saved so next monster isn't registered under own key
+								if(this.key == 'bed'){
+									//must run into bed to progress, so if bed, next one is boss
+									this.key = 'boss';
+								}
 							}
 						}
 					}
@@ -260,7 +318,7 @@ Enemy.prototype.update = function(){
 						this.cantfight.frame ++;											//go to next part of message
 						this.changeSel.play();												//play feedback audio
 						//check if final frame of message series
-						if(this.cantfight.frame == 2){
+						if(this.cantfight.frame == 0){
 							//destroy popup, popup no longeer on screen
 							this.triedToFight = false;
 							this.cantfight.destroy();
@@ -275,10 +333,14 @@ Enemy.prototype.update = function(){
 			this.bgm.volume = 0.25;
 		}
 
+		//ENEMY'S TURN
 		//check if enemy's turn
 		if(turn == 'enemy' && this.transitionEnded == true){
 			//check that enemy has not yet attacked this turn
 			if(this.battleEnemy.playOnce == false){
+
+				//ENEMY MOVEMENT/ANIMATIONS
+
 				//enemy attack tween
 				var enemyAttack = game.add.tween(this.battleEnemy).to({x: this.battlePlayer.x + this.battlePlayer.width/2}, 300, Phaser.Easing.Linear.None, true, 0, 0, true);
 				//call function when enemy attack tween complete
@@ -288,6 +350,9 @@ Enemy.prototype.update = function(){
 					//enemy turn over, it is now player's turn
 					turn = 'player';
 				}, this);
+
+				//ENEMY HAS MISSED PLAYER
+
 				//make miss visible and float up->invisible
 				var missTween = game.add.tween(this.battlePlayer.missed).to({y: this.battlePlayer.missed.y - 25, alpha:1}, 300, Phaser.Easing.Linear.None, true,300,0,false);
 				var missTween2 = game.add.tween(this.battlePlayer.missed).to({y: this.battlePlayer.missed.y - 40, alpha:0}, 400, Phaser.Easing.Linear.None, false,0,0,false);
@@ -296,19 +361,34 @@ Enemy.prototype.update = function(){
 					this.battlePlayer.missed.y = this.battlePlayer.y - this.battlePlayer.height;
 				},this);
 				missTween.chain(missTween2);
-					//check if player char's damage is 0, current monster is an abstract one
-					if(this.battlePlayer.damage == 0 && black.alpha < 0.7){
-						//fade closer to black each time player is attacked
-						game.add.tween(black).to({alpha: black.alpha + 0.1}, 400,Phaser.Easing.Linear.None,true,300,0,false);
+
+				//SCREEN DARKENING
+
+				//check if player char's damage is 0, current monster is an abstract one
+				if(this.battlePlayer.damage == 0){
+					//fade closer to black each time player is attacked
+					//don't darken all the way for not-boss monster
+					if(this.key != 'boss' && black.alpha < 0.7){
+						game.add.tween(black).to({alpha: black.alpha + this.DARKENING_RATE}, 400,Phaser.Easing.Linear.None,true,300,0,false);
 					}
+					//go all the way to black for boss
+					else if(this.key == 'boss' && black.alpha != 1){
+						game.add.tween(black).to({alpha: black.alpha + this.DARKENING_RATE}, 400,Phaser.Easing.Linear.None,true,300,0,false);
+					}
+				}
 				//enemy has reached it's (1) attack counter. enemy has attacked on its turn
 				this.battleEnemy.playOnce = true;
 			}
 		}
 		//cant fight popup is onscreen
-		if(this.triedToFight == true){
+		if(this.triedToFight){
 			//keep it on top layer
 			this.cantfight.bringToTop();
+		}
+		//cant run popup on screen
+		if(this.triedToRun){
+			//keep on top layer
+			this.cantrun.bringToTop();
 		}
 		//check if black overlay is completely invisible
 		if(black.alpha == 0){
@@ -319,7 +399,6 @@ Enemy.prototype.update = function(){
 
 
 	}, null, this);
-
 
 	//once BATTLE OVER, player has fought this mob already
 	if(this.haveFought && !inBattle){
