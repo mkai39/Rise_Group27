@@ -44,7 +44,7 @@ function Enemy (game, x, y, key){
 	}
 
 	if(this.key == 'boss'){
-		this.DARKENING_RATE = 0.2;
+		this.DARKENING_RATE = 1;
 	}
 	//selection noises
 	this.sel = game.add.audio('selected');
@@ -260,7 +260,7 @@ Enemy.prototype.update = function(){
 										//END BATTLE
 										turn = 'battle over';								//no one's turn
 										this.transition.start();							//exit transition
-										battlescreen.destroy();								//get rid of battlescreen
+										//battlescreen.destroy();								//get rid of battlescreen
 	 									inBattle = false;									//battle is over
 									}
 									//it is now the enemy's turn
@@ -297,7 +297,7 @@ Enemy.prototype.update = function(){
 							else{
 								turn = 'battle over';										//no one's turn
 								this.transition.start();									//exit transition
-								battlescreen.destroy();										//get rid of battlescreen
+								//battlescreen.destroy();										//get rid of battlescreen
 								inBattle = false;											//battle is over
 								//glitch where after running, key of monster saved so next monster isn't registered under own key
 								if(this.key == 'bed'){
@@ -373,7 +373,12 @@ Enemy.prototype.update = function(){
 					}
 					//go all the way to black for boss
 					else if(this.key == 'boss' && black.alpha != 1){
-						game.add.tween(black).to({alpha: black.alpha + this.DARKENING_RATE}, 400,Phaser.Easing.Linear.None,true,300,0,false);
+						var darken = game.add.tween(black).to({alpha: black.alpha + this.DARKENING_RATE}, 400,Phaser.Easing.Linear.None,true,300,0,false);
+						darken.onComplete.add(function(){
+							if(black.alpha == 1){
+								cutscene = true;
+							}
+						}, this);
 					}
 				}
 				//enemy has reached it's (1) attack counter. enemy has attacked on its turn
@@ -408,11 +413,12 @@ Enemy.prototype.update = function(){
 		this.body.checkCollision.left = false;
 
 		//make black overlay invisible
-		black.alpha = 0;
+		//black.alpha = 0;
 
-		//make mob transparent
-		game.add.tween(this).to({alpha:0.5}, 500, Phaser.Easing.Linear.None, true);
-
+		//make mob transparent (for everything but boss)
+		if(this.key != 'boss'){
+			game.add.tween(this).to({alpha:0.5}, 500, Phaser.Easing.Linear.None, true);
+		}
 		//destroy 'miss' word sprite
 		this.battlePlayer.missed.destroy();
 
@@ -427,6 +433,8 @@ Enemy.prototype.update = function(){
 		//get rid of fightArrow once battle over
 		fightArrow.destroy();
 		this.headshot.destroy()
+
+		battlescreen.destroy();
 
 		//stop battle music
 		this.bgm.stop();

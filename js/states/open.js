@@ -18,8 +18,8 @@ Open.prototype = {
 		//black bg
 		var bg = game.add.sprite(0,0,'narrateBG');
 		//create the images w/ narration text and set them to be invisible
-		var set1 = game.add.sprite(0,0,'pg1');
-		var set2 = game.add.sprite(0,0,'pg2');
+		var set1 = game.add.sprite(0,0,'open1');
+		var set2 = game.add.sprite(0,0,'open2');
 		set1.alpha = 0;
 		set2.alpha = 0;
 

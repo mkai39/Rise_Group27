@@ -55,6 +55,7 @@ Load.prototype = {
 		game.load.atlas('protag','assets/img/protag_all.png','assets/img/json/protag_all.json');
 		game.load.atlas('protagFight', 'assets/img/protag_fight_all.png', 'assets/img/json/protag_fight_all.json');
 		game.load.atlas('headshot', 'assets/img/headshot_all.png', 'assets/img/json/headshot_all.json');
+		game.load.atlas('getup','assets/img/getup.png','assets/img/json/getup.json');
 
 		//same but for mobs
 		game.load.atlas('imp', 'assets/img/baddie01.png', 'assets/img/json/baddie01.json');
@@ -78,10 +79,17 @@ Load.prototype = {
 
 
 		//narration images
-		game.load.image('narrateBG', 'assets/img/open/narration_bg.png');
-		game.load.image('pg1','assets/img/open/1.png');
-		game.load.image('pg2', 'assets/img/open/2.png');
+		game.load.image('narrateBG', 'assets/img/narration/narration_bg.png');
+		game.load.image('open1','assets/img/narration/open1.png');
+		game.load.image('open2', 'assets/img/narration/open2.png');
 
+		game.load.image('getup1', 'assets/img/narration/getup1.png');
+		game.load.image('getup2', 'assets/img/narration/getup2.png');
+		game.load.image('getup3', 'assets/img/narration/getup3.png');
+		game.load.image('getup4', 'assets/img/narration/getup4.png');
+		game.load.image('getup5', 'assets/img/narration/getup5.png');
+		game.load.image('giveup1', 'assets/img/narration/giveup1.png');
+		game.load.image('giveup2', 'assets/img/narration/giveup2.png');
 
 		//audio
 		//sfx

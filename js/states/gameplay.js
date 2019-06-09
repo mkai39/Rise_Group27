@@ -29,9 +29,19 @@ var cutscene = false;
 var GamePlay = function(game) {};
 GamePlay.prototype = {
 	init: function(){
+		//audio
 		this.bgm;
+		//monsters
 		this.mob,this.mob2,this.mob3,this.mob4,this.mob5;
 		this.boss;
+		//cutscene booleans/sprites
+		this.cutscenePlayOnce = false;
+		this.cutscenePlayer;
+		this.playText = false;
+		this.chooseArrowPos;
+		this.chooseArrow;
+		this.choosingTime = false;
+		this.gotUp = false;
 	},
 	preload: function(){
 		console.log('GamePlay preload');
@@ -66,7 +76,7 @@ GamePlay.prototype = {
 
 		//create player character and enable arcade physics
 		player = game.add.sprite(200,175,'protag',5);
-		player.anchor.set(0,1);
+		player.anchor.setTo(0,1);
 		game.physics.arcade.enable(player);
 		player.body.gravity.y = 700;	//1000												//give player gravity
 		player.body.collideWorldBounds = true;												//make player collide with world bounds
@@ -326,6 +336,8 @@ GamePlay.prototype = {
 		};
 
 
+
+
 	},
 	update: function(){
 		//make player/floor collide
@@ -387,8 +399,188 @@ GamePlay.prototype = {
 		black.y = game.camera.y;
 
 		//bring overlay to the top
-		black.bringToTop();
+		if(!cutscene){
+			black.bringToTop();
+		}
 
+		//POST FIRST BOSS BATTLE CUTSCENE THING
+		if(cutscene){
+			inBattle = false;
+			//black.alpha = 1;
+			player.body.moves = false;
+			//when player hits the ground, black
+			game.physics.arcade.collide(this.cutscenePlayer,mapLayer,function(){
+					black.alpha = 1;
+				}, null,this);
+
+			//right key function
+			var rightSel = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+			rightSel.onDown.add(function(){
+				//when in cutscene
+				if(this.choosingTime){
+					//yes to no
+					if(this.chooseArrowPos == 1){
+						this.chooseArrow.x += 260;
+						this.chooseArrowPos = 2;
+						changeSel.play();
+					}
+				}
+			}, this);
+
+			//left key function
+			var leftSel = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+			leftSel.onDown.add(function(){
+				if(this.choosingTime){
+					if(this.chooseArrowPos == 2){
+						this.chooseArrow.x -= 260;
+						this.chooseArrowPos = 1;
+						changeSel.play();
+					}
+				}
+			},this);
+
+			var actionSel = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+			actionSel.onDown.add(function(){
+				//choice 1
+				if(this.text2.alpha == 1){
+					//dont give up
+					if(this.chooseArrowPos == 2){
+						var choice1Done = game.add.tween(this.text2).to({alpha:0}, 100,Phaser.Easing.Linear.None,true,0,0,false);
+						var choice2 = game.add.tween(this.text3).to({alpha:1},100,Phaser.Easing.Linear.None,false,0,0,false);
+						//this.chooseArrow.y += 15;
+						choice1Done.chain(choice2);
+						selected.play();
+					}
+					//given up
+					if(this.chooseArrowPos == 1){
+						var choice1Done = game.add.tween(this.text2).to({alpha:0}, 100,Phaser.Easing.Linear.None,true,0,0,false);
+						var givenUp = game.add.tween(this.giveupText1).to({alpha:1}, 100,Phaser.Easing.Linear.None,false,0,0,true);
+						var givenUp2 = game.add.tween(this.giveupText2).to({alpha:1}, 100,Phaser.Easing.Linear.None, false,0,0,true);
+						choice1Done.chain(givenUp);
+						givenUp.chain(givenUp2);
+						this.chooseArrow.destroy();
+						selected.play();
+						this.choosingTime = false;
+						game.add.tween(getupBGM).to({volume:0},2000,Phaser.Easing.Linear.None,true,0,0,false);
+					}
+				}
+				//choice 2
+				if(this.text3.alpha ==1){
+					//keep going
+					if(this.chooseArrowPos == 1){
+						var choice2Done = game.add.tween(this.text3).to({alpha:0}, 100,Phaser.Easing.Linear.None,true,0,0,false);
+						var choice3 = game.add.tween(this.text4).to({alpha:1}, 100,Phaser.Easing.Linear.None,false,0,0,false);
+						//this.chooseArrow.y -= 50;
+						choice2Done.chain(choice3);
+						selected.play();
+					}
+					//given up
+					if(this.chooseArrowPos ==2){
+						var choice2Done = game.add.tween(this.text3).to({alpha:0}, 100,Phaser.Easing.Linear.None,true,0,0,false);
+						var givenUp = game.add.tween(this.giveupText1).to({alpha:1}, 100,Phaser.Easing.Linear.None,false,0,0,true);
+						var givenUp2 = game.add.tween(this.giveupText2).to({alpha:1}, 100,Phaser.Easing.Linear.None, false,0,0,true);
+						choice2Done.chain(givenUp);
+						givenUp.chain(givenUp2);
+						this.chooseArrow.destroy();
+						selected.play();
+						this.choosingTime = false;
+						game.add.tween(getupBGM).to({volume:0},2000,Phaser.Easing.Linear.None,true,0,0,false);
+					}
+				}
+				//choice 3
+				if(this.text4.alpha == 1){
+					var choice3Done = game.add.tween(this.text4).to({alpha:0},100,Phaser.Easing.Linear.None,true,0,0,false);
+					var lastText = game.add.tween(this.text5).to({alpha:1},100,Phaser.Easing.Linear.None,false,0,0,true);
+					lastText.onComplete.add(function(){
+						//delay
+						game.time.events.add(Phaser.Timer.SECOND*3, function(){
+							this.cutscenePlayer.animations.play('gettingUp');
+							player.mood = 'normal';
+							this.gotUp = true;
+						}, this);
+					},this);
+					choice3Done.chain(lastText);
+					this.chooseArrow.destroy();
+					selected.play();
+					this.choosingTime = false;
+					game.add.tween(getupBGM).to({volume:0},2000,Phaser.Easing.Linear.None,true,0,0,false);
+				}
+			},this);
+
+			//PART1
+			if(!this.cutscenePlayOnce){
+				this.cutscenePlayOnce = true;
+				//make player invisible
+				player.visible = false;
+
+				//black fades away
+				game.add.tween(black).to({alpha:0}, 500,Phaser.Easing.Linear.None,true,0,0,false);
+				//create player's cutscene sprite w/ physics
+				this.cutscenePlayer = game.add.sprite(player.x,player.y,'getup',0);
+				this.cutscenePlayer.anchor.setTo(0,1);
+				game.physics.arcade.enable(this.cutscenePlayer);
+				this.cutscenePlayer.body.gravity.y = 700;	//1000	
+
+				//getup animations
+				this.cutscenePlayer.animations.add('gettingUp', [0,1,2,3,4,5,6], 4,false);
+
+
+				//make camera follow cutscene player
+				game.camera.follow(this.cutscenePlayer);
+				//throw player down
+				var throw1 = game.add.tween(this.cutscenePlayer).to({x: game.width*1.5, y: this.cutscenePlayer.y - 150}, 600,Phaser.Easing.Linear.None,true,200,0,false);
+				var throw2 = game.add.tween(this.cutscenePlayer).to({x:game.width*1.5, y: this.cutscenePlayer.y + 150}, 500,Phaser.Easing.Linear.None,false,0,0,false);
+				throw2.onComplete.add(function(){
+					this.playText = true;
+				},this);
+				throw1.chain(throw2);
+
+				var selected = game.add.audio('selected');
+				var changeSel = game.add.audio('changeSelection');
+				changeSel.volume = 0.5;
+				
+
+				var getupBGM = game.add.audio('getupBGM');
+				getupBGM.loopFull();
+				getupBGM.volume = 0;
+				game.add.tween(getupBGM).to({volume:0.05},3000,Phaser.Easing.Linear.None,true,0,0,false);
+
+
+			}
+			//PART2
+			if(this.playText && black.alpha == 1){
+					this.playText = false;
+					//create text sprites
+					var text1 = game.add.sprite(game.camera.x,game.camera.y,'getup1');
+					this.text2 = game.add.sprite(game.camera.x ,game.camera.y,'getup2');
+					this. text3 = game.add.sprite(game.camera.x,game.camera.y,'getup3');
+					this. text4 = game.add.sprite(game.camera.x,game.camera.y,'getup4');
+					this. text5 = game.add.sprite(game.camera.x,game.camera.y,'getup5');
+					this.giveupText1 = game.add.sprite(game.camera.x,game.camera.y,'giveup1');
+					this.giveupText2 = game.add.sprite(game.camera.x, game.camera.y,'giveup2');
+					text1.alpha = 0;
+					this.text2.alpha = 0;
+					this.text3.alpha = 0;
+					this.text4.alpha = 0;
+					this.text5.alpha = 0;
+					this.giveupText1.alpha = 0;
+					this.giveupText2.alpha = 0;
+					var textTween1 = game.add.tween(text1).to({alpha:1},100,Phaser.Easing.Linear.None, true,0,0,true); //4000
+					var textTween2 = game.add.tween(this.text2).to({alpha:1},100,Phaser.Easing.Linear.None,false,0,0,false);//3000
+					textTween2.onComplete.add(function(){
+					 	this.chooseArrow = game.add.sprite(game.camera.x + game.width/2 - 200,game.camera.y + game.height/2 + 70,'fightArrow');
+						this.chooseArrowPos = 1;
+						this.choosingTime = true;
+					},this);
+					textTween1.chain(textTween2);
+				}
+				//PART3
+				if(this.gotUp){
+					
+				}
+			
+
+		}
 
 		//restart state
 		if(game.input.keyboard.isDown(Phaser.Keyboard.R)){
