@@ -44,9 +44,11 @@ Load.prototype = {
 		game.load.atlas('space', 'assets/img/space.png', 'assets/img/json/space.json');
 		game.load.atlas('upKey', 'assets/img/arrows3.png', 'assets/img/json/arrows3.json');
 		game.load.atlas('arrowKeys', 'assets/img/arrows2.png', 'assets/img/json/arrows2.json');
+		game.load.image('or','assets/img/or.png');
 
 		//menu/credits
 		game.load.image('startCredits', 'assets/img/start_credits.png');
+		game.load.image('endCredits', 'assets/img/end_credits.png');
 		game.load.image('menu','assets/img/menu.png');
 		//the battle screen
 		game.load.atlas('fightScreen', 'assets/img/fightscreen_all.png', 'assets/img/json/fightscreen_all.json');
@@ -56,6 +58,7 @@ Load.prototype = {
 		game.load.atlas('protagFight', 'assets/img/protag_fight_all.png', 'assets/img/json/protag_fight_all.json');
 		game.load.atlas('headshot', 'assets/img/headshot_all.png', 'assets/img/json/headshot_all.json');
 		game.load.atlas('getup','assets/img/getup.png','assets/img/json/getup.json');
+		game.load.atlas('sitDown', 'assets/img/protag_sit.png', 'assets/img/json/protag_sit.json');
 
 		//same but for mobs
 		game.load.atlas('imp', 'assets/img/baddie01.png', 'assets/img/json/baddie01.json');
