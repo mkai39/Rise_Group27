@@ -3,6 +3,7 @@
 //Holly Cheng
 //Linda Xieu
 
+"use strict";
 //Enemy Prefab
 //Also covers part of battle sequence stuffs
 function Enemy (game, x, y, key){
@@ -14,6 +15,8 @@ function Enemy (game, x, y, key){
 	this.battleEnemy;
 	//in battle player character expression portrait
 	this.headshot;
+	//tutorial
+	this.spaceKey;
 	//keeps track of if player/enemy has attacked their turn
 	this.playOnce = false;
 	//cant run popup
@@ -26,6 +29,7 @@ function Enemy (game, x, y, key){
 	this.transitionEnded = false;
 	//rate at which overlay darkens by
 	this.DARKENING_RATE = 0.1;
+	this.secondBoss = false;
 
 	//call enemy as a sprite
 	Phaser.Sprite.call(this, game, x, y, key, 0);
@@ -44,7 +48,7 @@ function Enemy (game, x, y, key){
 	}
 
 	if(this.key == 'boss'){
-		this.DARKENING_RATE = 1;
+		this.DARKENING_RATE = 0.2;
 	}
 	//selection noises
 	this.sel = game.add.audio('selected');
@@ -140,6 +144,9 @@ Enemy.prototype.update = function(){
 			//change which battlescreen is used depending on mob player is fighting
 			if(this.key == 'snek'){
 				battlescreen.frame = 0;
+				this.spaceKey = game.add.sprite(battlescreen.x*1.2,battlescreen.y+300,'space');
+				this.spaceKey.animations.add('spaceFlash',[0,1],2,true);
+				this.spaceKey.animations.play('spaceFlash');
 			}
 			else if(this.key == 'imp'){
 				battlescreen.frame = 1;
@@ -187,6 +194,10 @@ Enemy.prototype.update = function(){
 			if(this.key != 'imp' && this.key != 'snek'){
 				//player's damage is 0,can't hurt monster
 				this.battlePlayer.damage = 0;
+			}
+			if(player.x > game.width){
+				this.secondBoss = true;
+				this.battlePlayer.damage = 10;
 			}
 
 			//function for when action is selected during battle by player
@@ -372,7 +383,7 @@ Enemy.prototype.update = function(){
 						game.add.tween(black).to({alpha: black.alpha + this.DARKENING_RATE}, 400,Phaser.Easing.Linear.None,true,300,0,false);
 					}
 					//go all the way to black for boss
-					else if(this.key == 'boss' && black.alpha != 1){
+					else if(this.key == 'boss' && black.alpha != 1 && !this.secondBoss){
 						var darken = game.add.tween(black).to({alpha: black.alpha + this.DARKENING_RATE}, 400,Phaser.Easing.Linear.None,true,300,0,false);
 						darken.onComplete.add(function(){
 							if(black.alpha == 1){
@@ -416,8 +427,8 @@ Enemy.prototype.update = function(){
 		//black.alpha = 0;
 
 		//make mob transparent (for everything but boss)
-		if(this.key != 'boss'){
-			game.add.tween(this).to({alpha:0.5}, 500, Phaser.Easing.Linear.None, true);
+		if(this.key != 'boss' || this.secondBoss){
+			game.add.tween(this).to({alpha:0.25}, 500, Phaser.Easing.Linear.None, true);
 		}
 		//destroy 'miss' word sprite
 		this.battlePlayer.missed.destroy();
@@ -429,15 +440,22 @@ Enemy.prototype.update = function(){
 		this.battleEnemy.hpTop.destroy();
 		this.battlePlayer.destroy();
 		this.battleEnemy.destroy();
-
 		//get rid of fightArrow once battle over
 		fightArrow.destroy();
 		this.headshot.destroy()
+		if(this.key == 'snek'){
+			this.spaceKey.destroy();
+		}
 
 		battlescreen.destroy();
 
 		//stop battle music
 		this.bgm.stop();
 	}
+
+	if(game.input.keyboard.isDown(Phaser.Keyboard.R)){
+			this.bgm.destroy();
+			game.state.start('GamePlay');
+		}
 
 }

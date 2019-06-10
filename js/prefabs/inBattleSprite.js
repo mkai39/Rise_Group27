@@ -35,17 +35,12 @@ function InBattleSprite (game, which, key){
 			//imp killed in 3 hits
 			this.health = 17;
 		}
-		// else if(this.key == 'wike mazowskiBig'){
-		// 	//wike mazowski not to be killed
-		// 	this.health = 5000;
-		// }
-		// else if(this.key == 'chatterBig'){
-		// 	//chatter also not to be killed
-		// 	this.health = 5000;
-		// }
+		else if(player.x > game.width && this.key == 'bossBig'){
+			this.health = 27;
+		}
 		else{
 			//a lot of health, enemy not meant to be killed
-			this.health = 5000;
+			this.health = 5;
 		}
 	}
 	this.anchor.setTo(1,1);

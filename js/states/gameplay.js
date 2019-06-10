@@ -15,26 +15,37 @@
 
 var xMOVE_SPEED = 200;
 var player;
-var battlescreen, fightArrowPos;
-var fightArrow;
-var inBattle;
+var mapLayer;
 var black;
+var battlescreen, fightArrow, fightArrowPos;
+var inBattle;
 var stepCount = 0, step;
 var inContact;
+var cutscene;
 var turn = 'none';
 var mood = 'normal';
-var mapLayer;
-var cutscene = false;
+
 
 var GamePlay = function(game) {};
 GamePlay.prototype = {
 	init: function(){
 		//audio
 		this.bgm;
+		this.resoluteBGM;
+
+		//tutorial keys
+		this.spaceKey, this.upKey, this.sideKeys;
+
 		//monsters
 		this.mob,this.mob2,this.mob3,this.mob4,this.mob5;
-		this.boss;
+		this.boss, this.boss2;
+
+		//intiialize in case of restart
+		inBattle = false;
+		mood = 'normal';
+
 		//cutscene booleans/sprites
+		cutscene = false;					//initialize in case of restart
 		this.cutscenePlayOnce = false;
 		this.cutscenePlayer;
 		this.playText = false;
@@ -42,6 +53,11 @@ GamePlay.prototype = {
 		this.chooseArrow;
 		this.choosingTime = false;
 		this.gotUp = false;
+
+
+		//end cutscene
+		this.zaEnd = false;
+		this.endContact = false;
 	},
 	preload: function(){
 		console.log('GamePlay preload');
@@ -75,7 +91,7 @@ GamePlay.prototype = {
 		var plants = map.createLayer('plants');
 
 		//create player character and enable arcade physics
-		player = game.add.sprite(200,175,'protag',5);
+		player = game.add.sprite(70,game.world.height-64,'protag',5);
 		player.anchor.setTo(0,1);
 		game.physics.arcade.enable(player);
 		player.body.gravity.y = 700;	//1000												//give player gravity
@@ -91,6 +107,24 @@ GamePlay.prototype = {
 		player.animations.add('neutWalkLeft', [10,11,12,13], 5, true);
 		player.animations.add('sadWalkRight', [26,27,28,29], 5, true);
 		player.animations.add('sadWalkLeft', [20,21,22,23], 5, true);
+
+		//TUTORIAL KEYS
+		this.spaceKey = game.add.sprite(player.x + player.width,player.y - player.height-40,'space');
+		this.upKey = game.add.sprite(this.spaceKey.x - 50, this.spaceKey.y,'upKey');
+		this.sideKeys = game.add.sprite(player.x,player.y-player.height-40,'arrowKeys');
+		this.or = game.add.sprite(this.spaceKey.x - 25, this.spaceKey.y + 5, 'or');
+		this.or.scale.setTo(0.25,0.25);
+		this.spaceKey.alpha = 0;
+		this.upKey.alpha = 0;
+		this.or.alpha = 0;
+
+		this.spaceKey.animations.add('spaceFlash', [0,1], 2, true);
+		this.upKey.animations.add('upFlash', [0,1], 2, true);
+		this.sideKeys.animations.add('sideFlash', [0,1], 2, true);
+
+		this.sideKeys.play('sideFlash');
+		this.upKey.play('upFlash');
+		this.spaceKey.play('spaceFlash');
 
 		//create enemy character
 		this.mob = new Enemy(game, 200,game.world.height-300,'snek');
@@ -165,7 +199,7 @@ GamePlay.prototype = {
 					if(step == 0){
 						step1.play();
 					}
-					else if(step == 15){
+					else if(step == 13){
 						step2.play();
 					}
 				}
@@ -212,7 +246,7 @@ GamePlay.prototype = {
 					if(step == 0){
 						step1.play();
 					}
-					else if(step == 15){
+					else if(step == 13){
 						step2.play();
 					}
 				}
@@ -243,7 +277,7 @@ GamePlay.prototype = {
 			//When in Platformer state and touching the ground
 			if(!inBattle && inContact){
 				//move up(jump)
-				player.body.velocity.y = -500;
+				player.body.velocity.y = -550;
 			}
 			//when in Battle state
 			else if(inBattle && turn == 'player'){
@@ -347,15 +381,53 @@ GamePlay.prototype = {
 		player.body.velocity.x = 0;						//when not moving
 		//counter for steps so walking sfx sounds natural-ish
 		stepCount++;
-		step = stepCount % 30;
+		step = stepCount % 26;
+
+		if(this.sideKeys.visible){
+			this.sideKeys.x = player.x;
+			this.sideKeys.y = player.y-player.height-40;
+		}
+		if(player.x > game.width*0.5){
+			game.add.tween(this.sideKeys).to({alpha:0}, 100,Phaser.Easing.Linear.None,true);
+			game.add.tween(this.spaceKey).to({alpha:1},100,Phaser.Easing.Linear.None,true, 200);
+			game.add.tween(this.upKey).to({alpha:1},100,Phaser.Easing.Linear.None,true, 200);
+			game.add.tween(this.or).to({alpha:1},100,Phaser.Easing.Linear.None,true, 200);
+		}
+		if(this.sideKeys.alpha == 0){
+			this.sideKeys.visible = false;
+			this.sideKeys.destroy();
+		}
+		if(player.y < game.world.height - 450){
+			game.add.tween(this.spaceKey).to({alpha:0},100,Phaser.Easing.Linear.None,true);
+			game.add.tween(this.upKey).to({alpha:0},100,Phaser.Easing.Linear.None,true);
+			var tutorialDone = game.add.tween(this.or).to({alpha:0},100,Phaser.Easing.Linear.None,true);
+			tutorialDone.onComplete.add(function(){
+				this.spaceKey.destroy();
+				this.upKey.destroy();
+				this.or.destroy();
+			}, this);
+		}
+
+		//have tutorial keys follow player
+		this.spaceKey.x = player.x + player.width/3*2;
+		this.spaceKey.y = player.y - player.height - 40;
+		this.upKey.x = this.spaceKey.x -85;
+		this.upKey.y = this.spaceKey.y;
+		this.or.x = this.spaceKey.x-45;
+		this.or.y = this.spaceKey.y + 15;
+
 
 		//when player reaches a certain height, make the world wider
-		if(player.y < 150 ){
+		if(player.y < 150 && player.x < game.width){
 			game.world.setBounds(0,0,game.width*2,2560);
 		}
 		//when player reaches stage2, extend world again
-		if(player.x > game.width && player.y > game.height){
+		else if(player.x > game.width && player.y > game.height && player.x < game.width*3){
+			this.bgm.stop();
 			game.world.setBounds(game.width,0,game.width*3 + 96,2560);
+		}
+		else if(player.x > 2100){
+			game.world.setBounds(game.width*4 + 96 - game.width,0,game.width,2560);
 		}
 
 
@@ -363,7 +435,7 @@ GamePlay.prototype = {
 		if(player.y < game.world.height-600 && player.y > game.height*1.5 && player.x < game.width){
 			mood = 'neutral';
 		}
-		else if((player.y < game.height*1.5 && player.x < game.width) || player.x >game.width && player.x < game.width*2){
+		else if(player.y < game.height*1.5 && player.x < game.width){
 			mood = 'sad';
 		}
 		else{
@@ -387,8 +459,7 @@ GamePlay.prototype = {
 			//fade music
 			if(player.y < game.world.height/5 * 2){
 				game.add.tween(this.bgm).to({volume: 0}, 500, Phaser.Easing.Linear.None, true,0,0,false);
-				
-				//this.bgm.volume = 0;
+
 			}else{
 				this.bgm.volume = 0.25;
 			}
@@ -406,7 +477,6 @@ GamePlay.prototype = {
 		//POST FIRST BOSS BATTLE CUTSCENE THING
 		if(cutscene){
 			inBattle = false;
-			//black.alpha = 1;
 			player.body.moves = false;
 			//when player hits the ground, black
 			game.physics.arcade.collide(this.cutscenePlayer,mapLayer,function(){
@@ -445,55 +515,67 @@ GamePlay.prototype = {
 				if(this.text2.alpha == 1){
 					//dont give up
 					if(this.chooseArrowPos == 2){
-						var choice1Done = game.add.tween(this.text2).to({alpha:0}, 100,Phaser.Easing.Linear.None,true,0,0,false);
-						var choice2 = game.add.tween(this.text3).to({alpha:1},100,Phaser.Easing.Linear.None,false,0,0,false);
-						//this.chooseArrow.y += 15;
+						var choice1Done = game.add.tween(this.text2).to({alpha:0}, 1000,Phaser.Easing.Linear.None,true,0,0,false);
+						var choice2 = game.add.tween(this.text3).to({alpha:1},2000,Phaser.Easing.Linear.None,false,0,0,false);
+						this.chooseArrow.y += 10;
 						choice1Done.chain(choice2);
 						selected.play();
 					}
 					//given up
 					if(this.chooseArrowPos == 1){
-						var choice1Done = game.add.tween(this.text2).to({alpha:0}, 100,Phaser.Easing.Linear.None,true,0,0,false);
-						var givenUp = game.add.tween(this.giveupText1).to({alpha:1}, 100,Phaser.Easing.Linear.None,false,0,0,true);
-						var givenUp2 = game.add.tween(this.giveupText2).to({alpha:1}, 100,Phaser.Easing.Linear.None, false,0,0,true);
+						var choice1Done = game.add.tween(this.text2).to({alpha:0}, 1000,Phaser.Easing.Linear.None,true,0,0,false);
+						var givenUp = game.add.tween(this.giveupText1).to({alpha:1}, 4000,Phaser.Easing.Linear.None,false,0,0,true);
+						var givenUp2 = game.add.tween(this.giveupText2).to({alpha:1}, 6000,Phaser.Easing.Linear.None, false,0,0,true);
 						choice1Done.chain(givenUp);
 						givenUp.chain(givenUp2);
 						this.chooseArrow.destroy();
 						selected.play();
 						this.choosingTime = false;
-						game.add.tween(getupBGM).to({volume:0},2000,Phaser.Easing.Linear.None,true,0,0,false);
+						var endSound = game.add.tween(getupBGM).to({volume:0},2000,Phaser.Easing.Linear.None,false,0,0,false);
+						var charFade = game.add.tween(this.cutscenePlayer).to({alpha:0}, 3000,Phaser.Easing.Linear.None,false);
+						givenUp2.chain(endSound);
+						endSound.chain(charFade);
+						charFade.onComplete.add(function(){
+							game.state.start('GameOver');
+						},this);
 					}
 				}
 				//choice 2
 				if(this.text3.alpha ==1){
 					//keep going
 					if(this.chooseArrowPos == 1){
-						var choice2Done = game.add.tween(this.text3).to({alpha:0}, 100,Phaser.Easing.Linear.None,true,0,0,false);
-						var choice3 = game.add.tween(this.text4).to({alpha:1}, 100,Phaser.Easing.Linear.None,false,0,0,false);
-						//this.chooseArrow.y -= 50;
+						var choice2Done = game.add.tween(this.text3).to({alpha:0}, 1000,Phaser.Easing.Linear.None,true,0,0,false);
+						var choice3 = game.add.tween(this.text4).to({alpha:1}, 2000,Phaser.Easing.Linear.None,false,0,0,false);
+						this.chooseArrow.y -= 30;
 						choice2Done.chain(choice3);
 						selected.play();
 					}
 					//given up
 					if(this.chooseArrowPos ==2){
-						var choice2Done = game.add.tween(this.text3).to({alpha:0}, 100,Phaser.Easing.Linear.None,true,0,0,false);
-						var givenUp = game.add.tween(this.giveupText1).to({alpha:1}, 100,Phaser.Easing.Linear.None,false,0,0,true);
-						var givenUp2 = game.add.tween(this.giveupText2).to({alpha:1}, 100,Phaser.Easing.Linear.None, false,0,0,true);
+						var choice2Done = game.add.tween(this.text3).to({alpha:0}, 1000,Phaser.Easing.Linear.None,true,0,0,false);
+						var givenUp = game.add.tween(this.giveupText1).to({alpha:1}, 4000,Phaser.Easing.Linear.None,false,0,0,true);
+						var givenUp2 = game.add.tween(this.giveupText2).to({alpha:1}, 6000,Phaser.Easing.Linear.None, false,0,0,true);
 						choice2Done.chain(givenUp);
 						givenUp.chain(givenUp2);
 						this.chooseArrow.destroy();
 						selected.play();
 						this.choosingTime = false;
-						game.add.tween(getupBGM).to({volume:0},2000,Phaser.Easing.Linear.None,true,0,0,false);
+						var endSound = game.add.tween(getupBGM).to({volume:0},2000,Phaser.Easing.Linear.None,false,0,0,false);
+						var charFade = game.add.tween(this.cutscenePlayer).to({alpha:0}, 3000,Phaser.Easing.Linear.None,false);
+						givenUp2.chain(endSound);
+						endSound.chain(charFade);
+						charFade.onComplete.add(function(){
+							game.state.start('GameOver');
+						},this);
 					}
 				}
 				//choice 3
 				if(this.text4.alpha == 1){
-					var choice3Done = game.add.tween(this.text4).to({alpha:0},100,Phaser.Easing.Linear.None,true,0,0,false);
-					var lastText = game.add.tween(this.text5).to({alpha:1},100,Phaser.Easing.Linear.None,false,0,0,true);
+					var choice3Done = game.add.tween(this.text4).to({alpha:0},1000,Phaser.Easing.Linear.None,true,0,0,false);
+					var lastText = game.add.tween(this.text5).to({alpha:1},5000,Phaser.Easing.Linear.None,false,0,0,true);
 					lastText.onComplete.add(function(){
 						//delay
-						game.time.events.add(Phaser.Timer.SECOND*3, function(){
+						game.time.events.add(Phaser.Timer.SECOND, function(){
 							this.cutscenePlayer.animations.play('gettingUp');
 							player.mood = 'normal';
 							this.gotUp = true;
@@ -514,7 +596,7 @@ GamePlay.prototype = {
 				player.visible = false;
 
 				//black fades away
-				game.add.tween(black).to({alpha:0}, 500,Phaser.Easing.Linear.None,true,0,0,false);
+				game.add.tween(black).to({alpha:0}, 700,Phaser.Easing.Linear.None,true,0,0,false);
 				//create player's cutscene sprite w/ physics
 				this.cutscenePlayer = game.add.sprite(player.x,player.y,'getup',0);
 				this.cutscenePlayer.anchor.setTo(0,1);
@@ -550,6 +632,7 @@ GamePlay.prototype = {
 			//PART2
 			if(this.playText && black.alpha == 1){
 					this.playText = false;
+
 					//create text sprites
 					var text1 = game.add.sprite(game.camera.x,game.camera.y,'getup1');
 					this.text2 = game.add.sprite(game.camera.x ,game.camera.y,'getup2');
@@ -565,8 +648,9 @@ GamePlay.prototype = {
 					this.text5.alpha = 0;
 					this.giveupText1.alpha = 0;
 					this.giveupText2.alpha = 0;
-					var textTween1 = game.add.tween(text1).to({alpha:1},100,Phaser.Easing.Linear.None, true,0,0,true); //4000
-					var textTween2 = game.add.tween(this.text2).to({alpha:1},100,Phaser.Easing.Linear.None,false,0,0,false);//3000
+					//begin series of text narration
+					var textTween1 = game.add.tween(text1).to({alpha:1},5000,Phaser.Easing.Linear.None, true,0,0,true); //4000
+					var textTween2 = game.add.tween(this.text2).to({alpha:1},2000,Phaser.Easing.Linear.None,false,0,0,false);//3000
 					textTween2.onComplete.add(function(){
 					 	this.chooseArrow = game.add.sprite(game.camera.x + game.width/2 - 200,game.camera.y + game.height/2 + 70,'fightArrow');
 						this.chooseArrowPos = 1;
@@ -574,22 +658,81 @@ GamePlay.prototype = {
 					},this);
 					textTween1.chain(textTween2);
 				}
+
 				//PART3
+				//player chose to continue
 				if(this.gotUp){
-					
+					//player gets up, replace cutscene player w/ real player, focus on player
+					var charFade = game.add.tween(this.cutscenePlayer).to({alpha: 0}, 1500, Phaser.Easing.Linear.None, true,1500,0,false);
+					charFade.onComplete.add(function(){
+						player.x = this.cutscenePlayer.x;
+						player.y = this.cutscenePlayer.y;
+						player.visible = true;
+						player.body.moves = true;
+						this.gotUp = false;
+						cutscene = false;
+						this.cutscenePlayer.destroy();
+						game.camera.follow(player);
+					}, this);
+					//cutscene basically finished, battle boss once more
+					var blackFade = game.add.tween(black).to({alpha:0},1000,Phaser.Easing.Linear.None, false,500,0,false);
+					blackFade.onComplete.add(function(){
+						this.boss2 = new Enemy(game, player.x,player.y,'boss');
+						game.add.existing(this.boss2);
+					},this);
+					charFade.chain(blackFade);
+
 				}
 			
 
 		}
 
+		if(player.x > game.width*2 && this.boss2.secondBoss){
+			this.resoluteBGM = game.add.audio('resolutionBGM');
+			this.resoluteBGM.loopFull();
+			this.resoluteBGM.volume = 0;
+			game.add.tween(this.resoluteBGM).to({volume: 0.25},15000,Phaser.Easing.Linear.None,true,0,0,false);
+			this.boss2.secondBoss = false;			//reuse boolean to only play this once
+		}
+
+		if(this.zaEnd){
+			game.physics.arcade.collide(this.endPlayer,mapLayer);
+
+		}
+		//start end cutscene
+		if(player.x >= 2100 && player.y <= 1024 && !this.zaEnd){
+			this.zaEnd = true;
+			player.body.moves = false;
+			//move player to this position
+			var lastTween = game.add.tween(player).to({x:2130, y: 1020}, 800, Phaser.Easing.Linear.None, true,0,0,false);
+			lastTween.onComplete.add(function(){
+				//create cutscene player char sprite/apply physics
+				this.endPlayer = game.add.sprite(player.x,player.y,'sitDown',0);
+				this.endPlayer.anchor.setTo(0,1);
+				game.physics.arcade.enable(this.endPlayer);
+				this.endPlayer.body.setSize(this.endPlayer.width,10,0,44);
+				this.endPlayer.body.gravity.y = 700;
+				this.endPlayer.animations.add('sit',[0,1,2,3,4,5], 5,false);
+				player.visible = false;
+				//play sitting animation
+				this.endPlayer.animations.play('sit');
+
+			},this);
+			//final fade to black
+			var finite = game.add.tween(black).to({alpha:1},5000,Phaser.Easing.Linear.None,true,2500,0,false);
+			finite.onComplete.add(function(){
+				//once black, go to game over state
+				game.state.start('GameOver');
+			},this);
+			lastTween.chain(finite);
+			game.add.tween(this.resoluteBGM).to({volume: 0},5000,Phaser.Easing.Linear.None,true,0,0,false);
+		}
 		//restart state
 		if(game.input.keyboard.isDown(Phaser.Keyboard.R)){
+			this.bgm.destroy();
 			game.state.start('GamePlay');
 		}
 
-	},
-	render: function(){
-		//game.debug.body(this.mob2.battleEnemy.hpTop);
-		//game.debug.body(player);
 	}
 }
+
