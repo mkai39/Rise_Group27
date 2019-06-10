@@ -10,26 +10,37 @@
 
 var GameOver = function(game) {};
 GameOver.prototype = {
-	preload: function(){
-		console.log('GameOver preload');
+	init: function(){
+		this.bgm;
 	},
 	create: function(){
 		console.log('GameOver create');
-		//set bg color
-		game.stage.backgroundColor = "#8A6F1C";
+		game.world.setBounds(0,0,game.width,game.height);
+		//create credits image
+		var credits = game.add.sprite(0,0, 'endCredits');
+		//black overlay for fade
+		var black = game.add.sprite(0,0, 'overlay');
 
-		//temporary, so travversing through states is easier
-		//identify state
-		game.add.text(50,50,'This is GAMEOVER\nSPACE to go to LOAD state', {font:'18px Impact', fill: '#FFFFFF'});
+		this.bgm = game.add.audio('creditsBGM');
+		this.bgm.loopFull();
+		this.bgm.volume = 0;
 
+		//feedback audio
+		this.action = game.add.audio('selected');
+
+		//fade
+		game.add.tween(black).to({alpha: 0}, 2000, Phaser.Easing.Linear.None, true, 3000,0,false)
+		game.add.tween(this.bgm).to({volume:0.1},5000,Phaser.Easing.Linear.None, true,500,0,false);
 
 	},
 	update: function(){
-		//temporarily, go from gameover to load state for the sake of going around to all states easily
-		//check if spacebar is down
+		//check if space pressed
 		if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
-			//go to next state
-			game.state.start('MainMenu', true, false);
+			//go to menu state
+			this.action.play();
+			this.bgm.destroy();
+			//game.add.tween(this.bgm).to({volume:0},1500,Phaser.Easing.Linear.None,true,0,0,false);
+			game.state.start('MainMenu');
 		}
 	}
 }
