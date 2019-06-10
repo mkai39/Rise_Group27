@@ -4,7 +4,9 @@
 //Linda Xieu
 
 //GitHub Repository
-//https://github.com/mkaizena/FinalGame
+//https://github.com/mkaizena/Rise_Group27
+//itch.io
+//https://asterranaut.itch.io/rise
 
 //Menu State
 

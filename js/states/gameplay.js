@@ -6,7 +6,9 @@
 //Gameplay State
 
 //GitHub Repository
-//https://github.com/mkaizena/FinalGame
+//https://github.com/mkaizena/Rise_Group27
+//itch.io
+//https://asterranaut.itch.io/rise
 
 
 "use strict";

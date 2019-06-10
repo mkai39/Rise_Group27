@@ -8,9 +8,6 @@
 
 "use strict";
 
-//note to self: go over nathan's paddle pong code later on
-//to figure out loading screen stuffs
-
 
 
 var Load = function(game) {};
@@ -103,6 +100,7 @@ Load.prototype = {
 		game.load.audio('shing', 'assets/audio/attack.wav');
 
 		//bgms
+		//https://soundcloud.com/sei_peridot/sets/peritunematerial
 		game.load.audio('battleBGM', 'assets/audio/BATTLE_PerituneMaterial_Rapid2.mp3');
 		game.load.audio('bossbattleBGM', 'assets/audio/BOSSBATTLE_PerituneMaterial_Ametsuchi.mp3');
 		game.load.audio('creditsBGM', 'assets/audio/CREDITS_PerituneMaterial_Holy_Place2.mp3');
