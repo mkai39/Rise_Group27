@@ -47,8 +47,8 @@ Open.prototype = {
 		//make spacebar flash
 		this.space.animations.play('flash');
 
+		//go to next state on press of space, to gameplay state
 		if(this.space.alpha >= 0.8 && game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)){
-
 			game.state.start('GamePlay');
 		}
 	}

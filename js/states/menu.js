@@ -58,8 +58,8 @@ MainMenu.prototype = {
 				if(this.position == 1){
 					this.sel.play();											//lower pitched noise to contrast with high. also player feedback
 					this.bgm.stop();
-					//go to next state
-					game.state.start('GamePlay');
+					//go to next state, opening narration
+					game.state.start('Open');
 				}
 				if(this.position == 2){
 					this.changeSel.play();										//play noise
